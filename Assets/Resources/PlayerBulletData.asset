@@ -9,11 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f607d62c36cf429b98fd5e0d29773f70, type: 3}
-  m_Name: PlayerBullet
+  m_Script: {fileID: 11500000, guid: 43a30408e2314646ac627e0f8212055b, type: 3}
+  m_Name: PlayerBulletData
   m_EditorClassIdentifier: 
-  isPlayer: 1
-  physicsLayer: 14
-  color: {r: 0, g: 0.07073355, b: 1, a: 1}
-  damage: 1
-  speed: 3
+  _characterType: 0
+  _color: {r: 0.14582503, g: 1, b: 0, a: 1}
+  _physicsLayerIndex: 14
+  _damage: 1

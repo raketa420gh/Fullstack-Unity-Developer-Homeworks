@@ -162,12 +162,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e09a324f54d94d6e84681731f36566c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isPlayer: 0
-  firePoint: {fileID: 3195880656587174614}
-  health: 3
   _rigidbody: {fileID: 659620479434099170}
-  speed: 3
-  countdown: 1
+  _firePoint: {fileID: 3195880656587174614}
+  _speed: 5
+  _countdown: 3
 --- !u!1 &2239154907127902911
 GameObject:
   m_ObjectHideFlags: 0

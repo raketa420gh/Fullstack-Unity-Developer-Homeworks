@@ -1,27 +1,94 @@
-using System;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace ShootEmUp
 {
     public sealed class Bullet : MonoBehaviour
     {
-        public event Action<Bullet, Collision2D> OnCollisionEntered;
-
-        [NonSerialized]
-        public bool isPlayer;
+        public event Action<Bullet> OnDestroy;
+  
+        [SerializeField]
+        private Rigidbody2D _rigidbody;
+        [SerializeField] 
+        private SpriteRenderer _spriteRenderer;
+        [SerializeField]
+        private float _speed;
+        [SerializeField]
+        private float _lifetime;
         
-        [NonSerialized]
-        public int damage;
+        private int _damage;
+        private Coroutine _coroutine;
 
-        [SerializeField]
-        public new Rigidbody2D rigidbody2D;
-
-        [SerializeField]
-        public SpriteRenderer spriteRenderer;
-
-        private void OnCollisionEnter2D(Collision2D collision)
+        private void OnEnable()
         {
-            this.OnCollisionEntered?.Invoke(this, collision);
+            Activate();
+        }
+
+        private void OnDisable()
+        {
+            Deactivate();
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (!collision.collider.TryGetComponent(out IHealthComponent healthComponent))
+                return;
+            
+            if (healthComponent == null)
+                return;
+            
+            healthComponent.TakeDamage(_damage);
+
+            OnDestroy?.Invoke(this);
+        }
+
+        public void SetPosition(Vector3 position)
+        {
+            transform.position = position;
+        }
+
+        public void SetDirection(Vector3 direction)
+        {
+            _rigidbody.velocity = direction * _speed;
+        }
+
+        public void SetColor(Color color)
+        {
+            _spriteRenderer.color = color;
+        }
+
+        public void SetLayer(int layer)
+        {
+            gameObject.layer = layer;
+        }
+
+        public void SetDamage(int damage)
+        {
+            _damage = damage;
+        }
+
+        private void Activate()
+        {
+            gameObject.SetActive(true);
+            _coroutine = StartCoroutine(this.LifetimeRoutine());
+        }
+
+        private void Deactivate()
+        {
+            gameObject.SetActive(false);
+            if (_coroutine != null)
+            {
+                StopCoroutine(_coroutine);
+                _coroutine = null;
+            }
+        }
+
+        private IEnumerator LifetimeRoutine()
+        {
+            yield return new WaitForSeconds(_lifetime);
+            _coroutine = null;
+            OnDestroy?.Invoke(this);
         }
     }
 }

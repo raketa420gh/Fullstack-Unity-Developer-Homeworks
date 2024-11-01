@@ -6,77 +6,121 @@ namespace ShootEmUp
     public sealed class Enemy : MonoBehaviour
     {
         public delegate void FireHandler(Vector2 position, Vector2 direction);
-        
         public event FireHandler OnFire;
-
-        [SerializeField]
-        public bool isPlayer;
         
+        public Player Target => _target;
+        public bool IsAlive => _isAlive;
+        public event Action<Enemy> OnCreated;
+        public event Action<Enemy> OnDead;
+
+        [SerializeField] 
+        private CharacterType _characterType = CharacterType.Enemy;
+        [SerializeField] 
+        private int _defaultMaxHealth = 1;
+        [SerializeField] 
+        private int _defaultDamage = 1;
+        [SerializeField] 
+        private float _defaultMoveSpeed = 3;
         [SerializeField]
-        public Transform firePoint;
+        private Rigidbody2D _rigidbody;
+        [SerializeField]
+        private Transform _firePoint;
+        [SerializeField]
+        private float _countdown;
         
-        [SerializeField]
-        public int health;
+        private BulletManager _bulletManager;
+        private Player _target;
+        private Vector2 _destination;
+        private float _currentTime;
+        private bool _isPointReached;
+        private bool _isAlive;
+        private IHealthComponent _healthComponent;
+        private IMoveComponent _moveComponent;
+        private IFireComponent _fireComponent;
+        private IDealDamageComponent _dealDamageComponent;
 
-        [SerializeField]
-        public Rigidbody2D _rigidbody;
+        public void Create(BulletManager bulletManager)
+        {
+            _bulletManager = bulletManager;
+            _healthComponent = new HealthComponent(_defaultMaxHealth);
+            _dealDamageComponent = new DealDamageComponent(_characterType, _defaultDamage);
+            _moveComponent = new MoveComponentRigidBody(_rigidbody, _defaultMoveSpeed);
+            _fireComponent = new FireComponent(_bulletManager, _firePoint, CharacterType.Player);
+            
+            _healthComponent.OnStateChanged += OnHealthStateChanged;
+            _moveComponent.Enable();
+            
+            _isAlive = true;
+            OnCreated?.Invoke(this);
+        }
 
-        [SerializeField]
-        public float speed = 5.0f;
-
-        [SerializeField]
-        private float countdown;
-
-        [NonSerialized]
-        public Player target;
-
-        private Vector2 destination;
-        private float currentTime;
-        private bool isPointReached;
+        public void Dispose()
+        {
+            _healthComponent.OnStateChanged -= OnHealthStateChanged;
+        }
 
         public void Reset()
         {
-            this.currentTime = this.countdown;
+            _currentTime = _countdown;
         }
         
         public void SetDestination(Vector2 endPoint)
         {
-            this.destination = endPoint;
-            this.isPointReached = false;
+            _destination = endPoint;
+            _isPointReached = false;
+        }
+
+        public void SetTarget(Player target)
+        {
+            _target = target;
+        }
+
+        public void Fire()
+        {
+            
         }
 
         private void FixedUpdate()
         {
-            if (this.isPointReached)
+            if (_isPointReached)
             {
                 //Attack:
-                if (this.target.health <= 0)
+                if (!_isAlive)
                     return;
 
-                this.currentTime -= Time.fixedDeltaTime;
-                if (this.currentTime <= 0)
+                _currentTime -= Time.fixedDeltaTime;
+                if (_currentTime <= 0)
                 {
-                    Vector2 startPosition = this.firePoint.position;
-                    Vector2 vector = (Vector2) this.target.transform.position - startPosition;
+                    Vector2 startPosition = _firePoint.position;
+                    Vector2 vector = (Vector2) _target.transform.position - startPosition;
                     Vector2 direction = vector.normalized;
-                    this.OnFire?.Invoke(startPosition, direction);
+                    OnFire?.Invoke(startPosition, direction);
                     
-                    this.currentTime += this.countdown;
+                    _currentTime += _countdown;
                 }
             }
             else
             {
                 //Move:
-                Vector2 vector = this.destination - (Vector2) this.transform.position;
+                Vector2 vector = _destination - (Vector2) transform.position;
                 if (vector.magnitude <= 0.25f)
                 {
-                    this.isPointReached = true;
+                    _isPointReached = true;
                     return;
                 }
 
                 Vector2 direction = vector.normalized * Time.fixedDeltaTime;
-                Vector2 nextPosition = _rigidbody.position + direction * speed;
+                Vector2 nextPosition = _rigidbody.position + direction * _defaultMoveSpeed;
                 _rigidbody.MovePosition(nextPosition);
+            }
+        }
+        
+        private void OnHealthStateChanged(int currentHealth)
+        {
+            if (currentHealth <= 0)
+            {
+                _isAlive = false;
+                OnDead?.Invoke(this);
             }
         }
     }

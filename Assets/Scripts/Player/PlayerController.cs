@@ -1,56 +1,58 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace ShootEmUp
 {
-    public sealed class PlayerController : MonoBehaviour
+    public class PlayerController : MonoBehaviour
     {
         [SerializeField]
-        private Player character;
-
+        private Player _player;
         [SerializeField]
-        private BulletManager bulletManager;
+        private InputService _inputService;
+        [SerializeField]
+        private BulletManager _bulletManager;
 
-        private bool fireRequired;
-        private float moveDirection;
+        private bool _fireRequired;
+        private float _moveDirectionX;
 
-        private void Awake()
+        private void OnEnable()
         {
-            this.character.OnHealthEmpty += _ => Time.timeScale = 0;
+            _player.OnDead += HandlePlayerDeadEvent;
+            _inputService.OnMoveLeftKeyPressed += HandleInputMoveLeftKeyEvent;
+            _inputService.OnMoveRightKeyPressed += HandleInputMoveRightKeyEvent;
+            _inputService.OnFireKeyPressed += HandleInputFireKeyEvent;
         }
 
-        private void Update()
+        private void OnDisable()
         {
-            if (Input.GetKeyDown(KeyCode.Space)) 
-                fireRequired = true;
-
-            if (Input.GetKey(KeyCode.LeftArrow))
-                this.moveDirection = -1;
-            else if (Input.GetKey(KeyCode.RightArrow))
-                this.moveDirection = 1;
-            else
-                this.moveDirection = 0;
+            _player.OnDead -= HandlePlayerDeadEvent;
+            _inputService.OnMoveLeftKeyPressed -= HandleInputMoveLeftKeyEvent;
+            _inputService.OnMoveRightKeyPressed -= HandleInputMoveRightKeyEvent;
+            _inputService.OnFireKeyPressed -= HandleInputFireKeyEvent;
         }
 
         private void FixedUpdate()
         {
-            if (fireRequired)
-            {
-                bulletManager.SpawnBullet(
-                    this.character.firePoint.position,
-                    Color.blue,
-                    (int) PhysicsLayer.PLAYER_BULLET,
-                    1,
-                    true,
-                    this.character.firePoint.rotation * Vector3.up * 3
-                );
+            _player.Move(new Vector2(_moveDirectionX, 0));
+        }
 
-                fireRequired = false;
-            }
-            
-            Vector2 moveDirection = new Vector2(this.moveDirection, 0);
-            Vector2 moveStep = moveDirection * Time.fixedDeltaTime * character.speed;
-            Vector2 targetPosition = character._rigidbody.position + moveStep;
-            character._rigidbody.MovePosition(targetPosition);
+        private void HandlePlayerDeadEvent()
+        {
+            Time.timeScale = 0;
+        }
+
+        private void HandleInputMoveLeftKeyEvent()
+        {
+            _player.Move(Vector2.left);
+        }
+
+        private void HandleInputMoveRightKeyEvent()
+        {
+            _player.Move(Vector2.right);
+        }
+
+        private void HandleInputFireKeyEvent()
+        {
+            _player.Fire(Vector2.up);
         }
     }
 }
