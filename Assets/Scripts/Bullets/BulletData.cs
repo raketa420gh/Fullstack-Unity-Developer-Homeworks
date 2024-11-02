@@ -1,18 +1,17 @@
-﻿using ShootEmUp;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace New
+namespace ShootEmUp
 {
     [CreateAssetMenu(fileName = "BulletData", menuName = "Bullets/BulletData")]
     public sealed class BulletData : ScriptableObject
     {
-        public CharacterType CharacterType => _characterType;
+        public CharacterType EnemyType => _enemyType;
         public Color Color => _color;
         public int PhysicsLayerIndex => _physicsLayerIndex;
         public int Damage => _damage;
 
         [SerializeField] 
-        private CharacterType _characterType = CharacterType.Enemy;
+        private CharacterType _enemyType = CharacterType.Enemy;
         [SerializeField] 
         private Color _color;
         [SerializeField] 

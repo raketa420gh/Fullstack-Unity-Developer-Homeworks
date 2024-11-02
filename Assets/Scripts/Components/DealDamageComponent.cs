@@ -5,7 +5,8 @@ namespace ShootEmUp
     public class DealDamageComponent : IDealDamageComponent
     {
         public int Damage => _damage;
-        
+        public CharacterType EnemyType => _enemyType;
+
         private readonly int _damage;
         private readonly CharacterType _enemyType;
 
@@ -17,9 +18,15 @@ namespace ShootEmUp
 
         public bool DealDamage(Collider collider)
         {
-            if (collider.TryGetComponent(out HealthComponent healthComponent))
+            if (collider.TryGetComponent(out IDamageable damageable))
             {
-                healthComponent.TakeDamage(_damage);
+                if (damageable == null)
+                    return false;
+                
+                if (damageable.EnemyType != _enemyType)
+                    return false;
+                
+                damageable.Health.TakeDamage(_damage);
                 return true;
             }
 

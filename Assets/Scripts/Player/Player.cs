@@ -13,6 +13,8 @@ namespace ShootEmUp
         [SerializeField] 
         private CharacterType _characterType = CharacterType.Player;
         [SerializeField] 
+        private CharacterType _enemyType = CharacterType.Enemy;
+        [SerializeField] 
         private int _defaultMaxHealth = 1;
         [SerializeField] 
         private int _defaultDamage = 1;
@@ -29,7 +31,6 @@ namespace ShootEmUp
         private IHealthComponent _healthComponent;
         private IMoveComponent _moveComponent;
         private IFireComponent _fireComponent;
-        private IDealDamageComponent _dealDamageComponent;
 
         private void Awake()
         {
@@ -51,9 +52,8 @@ namespace ShootEmUp
         public void Create()
         {
             _healthComponent = new HealthComponent(_defaultMaxHealth);
-            _dealDamageComponent = new DealDamageComponent(_characterType, _defaultDamage);
             _moveComponent = new MoveComponentRigidBody(_rb, _defaultMoveSpeed);
-            _fireComponent = new FireComponent(_bulletManager, _firePoint, CharacterType.Player);
+            _fireComponent = new FireComponent(_bulletManager, _firePoint, _enemyType);
 
             _isAlive = true;
             

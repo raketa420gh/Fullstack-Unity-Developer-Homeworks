@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace ShootEmUp
 {
     public sealed class Bullet : MonoBehaviour
     {
-        public event Action<Bullet> OnDestroy;
-  
         [SerializeField]
         private Rigidbody2D _rigidbody;
         [SerializeField] 
@@ -17,8 +14,8 @@ namespace ShootEmUp
         [SerializeField]
         private float _lifetime;
         
-        private int _damage;
         private Coroutine _coroutine;
+        private IDealDamageComponent _dealDamageComponent;
 
         private void OnEnable()
         {
@@ -32,15 +29,9 @@ namespace ShootEmUp
 
         private void OnCollisionEnter(Collision collision)
         {
-            if (!collision.collider.TryGetComponent(out IHealthComponent healthComponent))
-                return;
-            
-            if (healthComponent == null)
-                return;
-            
-            healthComponent.TakeDamage(_damage);
-
-            OnDestroy?.Invoke(this);
+            Debug.Log($"OnCollision enter {collision.gameObject.name}");
+            _dealDamageComponent.DealDamage(collision.collider);
+            Deactivate();
         }
 
         public void SetPosition(Vector3 position)
@@ -63,15 +54,15 @@ namespace ShootEmUp
             gameObject.layer = layer;
         }
 
-        public void SetDamage(int damage)
+        public void SetDamageDealer(IDealDamageComponent dealDamageComponent)
         {
-            _damage = damage;
+            _dealDamageComponent = dealDamageComponent;
         }
 
         private void Activate()
         {
             gameObject.SetActive(true);
-            _coroutine = StartCoroutine(this.LifetimeRoutine());
+            _coroutine = StartCoroutine(LifetimeRoutine());
         }
 
         private void Deactivate()
@@ -88,7 +79,7 @@ namespace ShootEmUp
         {
             yield return new WaitForSeconds(_lifetime);
             _coroutine = null;
-            OnDestroy?.Invoke(this);
+            Deactivate();
         }
     }
 }

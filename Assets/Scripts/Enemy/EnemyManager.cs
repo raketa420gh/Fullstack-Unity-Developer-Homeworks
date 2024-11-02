@@ -32,10 +32,10 @@ namespace ShootEmUp
                 _activeEnemies.Add(enemy);
                 enemy.OnDead += HandleEnemyDeadEvent;
 
-                if (_activeEnemies.Count < 5)
+                /*if (_activeEnemies.Count < 5)
                 {
                     enemy.OnFire += OnFire;
-                }
+                }*/
             }
         }
 

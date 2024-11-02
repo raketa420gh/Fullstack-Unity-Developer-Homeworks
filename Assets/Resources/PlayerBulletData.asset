@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43a30408e2314646ac627e0f8212055b, type: 3}
   m_Name: PlayerBulletData
   m_EditorClassIdentifier: 
-  _characterType: 0
+  _enemyType: 1
   _color: {r: 0.14582503, g: 1, b: 0, a: 1}
   _physicsLayerIndex: 14
   _damage: 1

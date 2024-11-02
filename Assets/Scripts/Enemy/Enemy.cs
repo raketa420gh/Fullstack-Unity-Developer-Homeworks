@@ -3,18 +3,18 @@ using UnityEngine;
 
 namespace ShootEmUp
 {
-    public sealed class Enemy : MonoBehaviour
+    public sealed class Enemy : MonoBehaviour, IDamageable
     {
-        public delegate void FireHandler(Vector2 position, Vector2 direction);
-        public event FireHandler OnFire;
-        
-        public Player Target => _target;
+        public IHealthComponent Health => _healthComponent;
+        public CharacterType EnemyType => _enemyType;
         public bool IsAlive => _isAlive;
         public event Action<Enemy> OnCreated;
         public event Action<Enemy> OnDead;
 
         [SerializeField] 
         private CharacterType _characterType = CharacterType.Enemy;
+        [SerializeField] 
+        private CharacterType _enemyType = CharacterType.Player;
         [SerializeField] 
         private int _defaultMaxHealth = 1;
         [SerializeField] 
@@ -84,7 +84,7 @@ namespace ShootEmUp
         {
             if (_isPointReached)
             {
-                //Attack:
+                /*//Attack:
                 if (!_isAlive)
                     return;
 
@@ -97,7 +97,7 @@ namespace ShootEmUp
                     OnFire?.Invoke(startPosition, direction);
                     
                     _currentTime += _countdown;
-                }
+                }*/
             }
             else
             {

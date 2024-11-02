@@ -1,8 +1,7 @@
 ﻿using System.Linq;
-using ShootEmUp;
 using UnityEngine;
 
-namespace New
+namespace ShootEmUp
 {
     public sealed class BulletSpawner : MonoBehaviour
     {
@@ -20,10 +19,10 @@ namespace New
         public void SpawnBullet(BulletData data, Vector3 position, Vector2 direction)
         {
             Bullet bullet = _bulletsPool.Pool.GetFreeElement();
+            bullet.SetDamageDealer(new DealDamageComponent(data.EnemyType, data.Damage));
             bullet.SetPosition(position);
             bullet.SetColor(data.Color);
             bullet.SetLayer(data.PhysicsLayerIndex);
-            bullet.SetDamage(data.Damage);
             bullet.SetDirection(direction);
         }
 
