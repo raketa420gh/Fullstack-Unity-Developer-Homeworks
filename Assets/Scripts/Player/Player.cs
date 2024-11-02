@@ -3,10 +3,11 @@ using UnityEngine;
 
 namespace ShootEmUp
 {
-    public sealed class Player : MonoBehaviour
+    public sealed class Player : MonoBehaviour, IDamageable
     {
         public bool IsAlive => _isAlive;
-        
+        public IHealthComponent Health => _healthComponent;
+        public CharacterType EnemyType => _enemyType;
         public event Action OnCreated;
         public event Action OnDead;
 
@@ -16,8 +17,6 @@ namespace ShootEmUp
         private CharacterType _enemyType = CharacterType.Enemy;
         [SerializeField] 
         private int _defaultMaxHealth = 1;
-        [SerializeField] 
-        private int _defaultDamage = 1;
         [SerializeField] 
         private float _defaultMoveSpeed = 3;
         [SerializeField] 

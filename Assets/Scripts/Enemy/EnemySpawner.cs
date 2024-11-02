@@ -34,11 +34,6 @@ namespace ShootEmUp
             return enemy;
         }
 
-        private void FixedUpdate()
-        {
-
-        }
-
         private Transform GetRandomSpawnPoint()
         {
             int index = Random.Range(0, _spawnPositions.Length);

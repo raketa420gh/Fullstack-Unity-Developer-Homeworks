@@ -27,10 +27,9 @@ namespace ShootEmUp
             Deactivate();
         }
 
-        private void OnCollisionEnter(Collision collision)
+        private void OnCollisionEnter2D(Collision2D other)
         {
-            Debug.Log($"OnCollision enter {collision.gameObject.name}");
-            _dealDamageComponent.DealDamage(collision.collider);
+            _dealDamageComponent.DealDamage(other.collider);
             Deactivate();
         }
 

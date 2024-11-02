@@ -4,10 +4,9 @@ namespace ShootEmUp
 {
     public sealed class HealthComponent : IHealthComponent
     {
-        public event Action<int> OnStateChanged;
-
         public int Health { get; private set; }
         public int MaxHealth { get; private set; }
+        public event Action<int> OnStateChanged;
 
         public HealthComponent(int maxHealth)
         {

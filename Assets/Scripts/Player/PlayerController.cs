@@ -8,8 +8,6 @@ namespace ShootEmUp
         private Player _player;
         [SerializeField]
         private InputService _inputService;
-        [SerializeField]
-        private BulletManager _bulletManager;
 
         private bool _fireRequired;
         private float _moveDirectionX;

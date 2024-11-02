@@ -9,8 +9,8 @@ namespace ShootEmUp
     {
         [SerializeField] 
         private EnemySpawner _enemySpawner;
-        [SerializeField]
-        private BulletManager _bulletManager;
+        [SerializeField] 
+        private int _countOfEnemiesSameTime = 5;
         [SerializeField] 
         private bool _isSpawningEnabled = true;
 
@@ -27,21 +27,14 @@ namespace ShootEmUp
             while (_isSpawningEnabled)
             {
                 yield return new WaitForSeconds(Random.Range(1, 2));
-                
-                Enemy enemy =_enemySpawner.SpawnEnemyAtRandomPoint();
-                _activeEnemies.Add(enemy);
-                enemy.OnDead += HandleEnemyDeadEvent;
 
-                /*if (_activeEnemies.Count < 5)
+                if (_activeEnemies.Count <= _countOfEnemiesSameTime)
                 {
-                    enemy.OnFire += OnFire;
-                }*/
+                    Enemy enemy =_enemySpawner.SpawnEnemyAtRandomPoint();
+                    _activeEnemies.Add(enemy);
+                    enemy.OnDead += HandleEnemyDeadEvent;
+                }
             }
-        }
-
-        private void OnFire(Vector2 position, Vector2 direction)
-        {
-            //_bulletManager.SpawnBullet(position, Color.red, (int) PhysicsLayer.ENEMY_BULLET, 1, false, direction * 2);
         }
 
         private void HandleEnemyDeadEvent(Enemy enemy)

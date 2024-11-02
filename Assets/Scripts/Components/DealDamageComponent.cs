@@ -16,14 +16,14 @@ namespace ShootEmUp
             _damage = damage;
         }
 
-        public bool DealDamage(Collider collider)
+        public bool DealDamage(Collider2D collider)
         {
             if (collider.TryGetComponent(out IDamageable damageable))
             {
                 if (damageable == null)
                     return false;
                 
-                if (damageable.EnemyType != _enemyType)
+                if (damageable.EnemyType == _enemyType)
                     return false;
                 
                 damageable.Health.TakeDamage(_damage);

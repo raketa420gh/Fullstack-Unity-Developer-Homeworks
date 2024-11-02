@@ -4,6 +4,6 @@ namespace ShootEmUp
 {
     public interface IFireComponent
     {
-        void Fire(Vector2 direction);
+        public void Fire(Vector2 direction);
     }
 }

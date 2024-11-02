@@ -6,6 +6,6 @@ namespace ShootEmUp
     {
         public int Damage { get; }
         public CharacterType EnemyType { get; }
-        public bool DealDamage(Collider collider);
+        public bool DealDamage(Collider2D collider);
     }
 }

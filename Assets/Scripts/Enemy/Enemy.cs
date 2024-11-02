@@ -18,8 +18,6 @@ namespace ShootEmUp
         [SerializeField] 
         private int _defaultMaxHealth = 1;
         [SerializeField] 
-        private int _defaultDamage = 1;
-        [SerializeField] 
         private float _defaultMoveSpeed = 3;
         [SerializeField]
         private Rigidbody2D _rigidbody;
@@ -27,6 +25,8 @@ namespace ShootEmUp
         private Transform _firePoint;
         [SerializeField]
         private float _countdown;
+        [SerializeField] 
+        private float _reachDistance = 0.25f;
         
         private BulletManager _bulletManager;
         private Player _target;
@@ -37,13 +37,11 @@ namespace ShootEmUp
         private IHealthComponent _healthComponent;
         private IMoveComponent _moveComponent;
         private IFireComponent _fireComponent;
-        private IDealDamageComponent _dealDamageComponent;
 
         public void Create(BulletManager bulletManager)
         {
             _bulletManager = bulletManager;
             _healthComponent = new HealthComponent(_defaultMaxHealth);
-            _dealDamageComponent = new DealDamageComponent(_characterType, _defaultDamage);
             _moveComponent = new MoveComponentRigidBody(_rigidbody, _defaultMoveSpeed);
             _fireComponent = new FireComponent(_bulletManager, _firePoint, CharacterType.Player);
             
@@ -57,6 +55,7 @@ namespace ShootEmUp
         public void Dispose()
         {
             _healthComponent.OnStateChanged -= OnHealthStateChanged;
+            gameObject.SetActive(false);
         }
 
         public void Reset()
@@ -75,46 +74,57 @@ namespace ShootEmUp
             _target = target;
         }
 
-        public void Fire()
+        public void Fire(Vector2 direction)
         {
-            
+            _fireComponent.Fire(direction);
         }
 
         private void FixedUpdate()
         {
+            if (!_isAlive)
+                return;
+            
             if (_isPointReached)
             {
-                /*//Attack:
-                if (!_isAlive)
-                    return;
-
                 _currentTime -= Time.fixedDeltaTime;
+                
                 if (_currentTime <= 0)
                 {
-                    Vector2 startPosition = _firePoint.position;
-                    Vector2 vector = (Vector2) _target.transform.position - startPosition;
-                    Vector2 direction = vector.normalized;
-                    OnFire?.Invoke(startPosition, direction);
+                    Vector2 direction = GetTargetDirection();
+                    Fire(direction);
                     
                     _currentTime += _countdown;
-                }*/
+                }
             }
             else
             {
-                //Move:
-                Vector2 vector = _destination - (Vector2) transform.position;
-                if (vector.magnitude <= 0.25f)
-                {
-                    _isPointReached = true;
+                Vector2 direction = _destination - (Vector2) transform.position;
+                if (GetIsReached(direction)) 
                     return;
-                }
-
-                Vector2 direction = vector.normalized * Time.fixedDeltaTime;
-                Vector2 nextPosition = _rigidbody.position + direction * _defaultMoveSpeed;
-                _rigidbody.MovePosition(nextPosition);
+                
+                _moveComponent.Move(direction);
             }
         }
-        
+
+        private Vector2 GetTargetDirection()
+        {
+            Vector2 startPosition = _firePoint.position;
+            Vector2 vector = (Vector2)_target.transform.position - startPosition;
+            Vector2 direction = vector.normalized;
+            return direction;
+        }
+
+        private bool GetIsReached(Vector2 direction)
+        {
+            if (direction.magnitude <= _reachDistance)
+            {
+                _isPointReached = true;
+                return true;
+            }
+
+            return false;
+        }
+
         private void OnHealthStateChanged(int currentHealth)
         {
             if (currentHealth <= 0)

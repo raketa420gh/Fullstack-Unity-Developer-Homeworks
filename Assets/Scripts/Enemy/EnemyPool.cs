@@ -4,6 +4,8 @@ namespace ShootEmUp
 {
     public sealed class EnemyPool : MonoBehaviour
     {
+        public Pool<Enemy> Pool => _pool;
+        
         [SerializeField] 
         private int _poolCount = 25;
         [SerializeField] 
@@ -14,8 +16,6 @@ namespace ShootEmUp
         private Transform _container;
         
         private Pool<Enemy> _pool;
-
-        public Pool<Enemy> Pool => _pool;
 
         public void CreatePool()
         {
