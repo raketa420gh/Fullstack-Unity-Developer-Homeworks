@@ -2,7 +2,7 @@
 {
     public interface IDamageable
     {
-        IHealthComponent Health { get; }
+        void TakeDamage(int damage);
         CharacterType EnemyType { get; }
     }
 }

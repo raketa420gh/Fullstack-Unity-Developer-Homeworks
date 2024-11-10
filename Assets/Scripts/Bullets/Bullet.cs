@@ -1,10 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace ShootEmUp
 {
     public sealed class Bullet : MonoBehaviour
     {
+        public event Action<Bullet> OnDead; 
+
         [SerializeField]
         private Rigidbody2D _rigidbody;
         [SerializeField] 
@@ -13,7 +16,7 @@ namespace ShootEmUp
         private float _speed;
         [SerializeField]
         private float _lifetime;
-        
+
         private Coroutine _coroutine;
         private IDealDamageComponent _dealDamageComponent;
 
@@ -66,6 +69,8 @@ namespace ShootEmUp
 
         private void Deactivate()
         {
+            OnDead?.Invoke(this);
+            
             gameObject.SetActive(false);
             if (_coroutine != null)
             {

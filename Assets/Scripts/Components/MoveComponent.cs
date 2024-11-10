@@ -4,9 +4,6 @@ namespace ShootEmUp
 {
     public sealed class MoveComponentRigidBody : IMoveComponent
     {
-        public float Speed => _speed;
-        public bool Enabled => _enabled;
-
         private readonly Rigidbody2D _rigidbody;
         private readonly float _speed;
         private bool _enabled;

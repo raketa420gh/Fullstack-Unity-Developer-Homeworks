@@ -3,33 +3,30 @@ using UnityEngine;
 
 namespace ShootEmUp
 {
-    public class Pool<T> where T : MonoBehaviour
+    public class Pool<T> : MonoBehaviour where T : MonoBehaviour
     {
-        public T Prefab { get; }
-        public bool AutoExpand { get; set; }
-        public Transform Container { get; }
-
-        public List<T> PooledObjects => _pool;
-
+        [SerializeField]
+        private T _prefab;
+        [SerializeField]
+        private bool _autoExpand;
+        [SerializeField]
+        private Transform _container;
+        [SerializeField] 
+        private int _poolCapacity;
+        
         private List<T> _pool;
 
-        public Pool(T prefab, int count)
+        public void CreatePool()
         {
-            Prefab = prefab;
-            Container = null;
-
-            CreatePool(count);
+            CreatePool(_poolCapacity);
         }
 
-        public Pool(T prefab, int count, Transform container)
+        public T GetFromPool()
         {
-            Prefab = prefab;
-            Container = container;
-
-            CreatePool(count);
+            return GetFreeElement();
         }
 
-        public bool HasFreeElement(out T element)
+        private bool HasFreeElement(out T element)
         {
             foreach (var mono in _pool)
             {
@@ -45,12 +42,12 @@ namespace ShootEmUp
             return false;
         }
 
-        public T GetFreeElement()
+        private T GetFreeElement()
         {
             if (HasFreeElement(out T element))
                 return element;
 
-            if (AutoExpand)
+            if (_autoExpand)
                 return CreateObject(true);
 
             return null;
@@ -68,7 +65,7 @@ namespace ShootEmUp
 
         private T CreateObject(bool isActiveByDefault = false)
         {
-            T createdObject = Object.Instantiate(Prefab, Container);
+            T createdObject = Instantiate(_prefab, _container);
             createdObject.gameObject.SetActive(isActiveByDefault);
             _pool.Add(createdObject);
 

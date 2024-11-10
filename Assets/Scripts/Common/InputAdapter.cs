@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ShootEmUp
 {
-    public class InputService : MonoBehaviour
+    public class InputAdapter : MonoBehaviour
     {
         public event Action OnMoveLeftKeyPressed;
         public event Action OnMoveRightKeyPressed;

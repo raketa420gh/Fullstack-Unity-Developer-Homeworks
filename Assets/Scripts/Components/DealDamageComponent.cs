@@ -26,7 +26,7 @@ namespace ShootEmUp
                 if (damageable.EnemyType == _enemyType)
                     return false;
                 
-                damageable.Health.TakeDamage(_damage);
+                damageable.TakeDamage(_damage);
                 return true;
             }
 

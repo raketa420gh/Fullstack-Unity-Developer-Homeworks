@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -12,9 +12,12 @@ namespace ShootEmUp
         private LevelBounds _levelBounds;
         [SerializeField] 
         private BulletData[] _bulletDatabase;
+        
+        private readonly List<Bullet> _activeBullets = new List<Bullet>();
 
         private void Awake()
         {
+            _activeBullets.Clear();
             _bulletsPool.CreatePool();
         }
 
@@ -22,23 +25,31 @@ namespace ShootEmUp
         {
             BulletData bulletData = _bulletDatabase.FirstOrDefault(data => characterType == data.EnemyType);
             
-            SpawnBullet(bulletData, position, direction);
+            Bullet bullet = SpawnBullet(bulletData, position, direction);
+            _activeBullets.Add(bullet);
+            bullet.OnDead += HandleBulletDeadEvent;
         }
 
-        private void SpawnBullet(BulletData data, Vector3 position, Vector2 direction)
+        private Bullet SpawnBullet(BulletData data, Vector3 position, Vector2 direction)
         {
-            Bullet bullet = _bulletsPool.Pool.GetFreeElement();
+            Bullet bullet = _bulletsPool.GetFromPool();
             bullet.SetBulletData(data);
             bullet.SetPosition(position);
             bullet.SetColor(data.Color);
             bullet.SetLayer(data.PhysicsLayerIndex);
             bullet.SetDirection(direction);
+            return bullet;
         }
 
         private void FixedUpdate()
         {
-            foreach (Bullet bullet in _bulletsPool.Pool.PooledObjects.Where(bullet => !_levelBounds.InBounds(bullet.transform.position)))
+            foreach (Bullet bullet in _activeBullets.Where(bullet => !_levelBounds.InBounds(bullet.transform.position)))
                 bullet.gameObject.SetActive(false);
+        }
+
+        private void HandleBulletDeadEvent(Bullet bullet)
+        {
+            _activeBullets.Remove(bullet);
         }
     }
 }

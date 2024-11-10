@@ -7,35 +7,28 @@ namespace ShootEmUp
         [SerializeField]
         private Player _player;
         [SerializeField]
-        private InputService _inputService;
+        private InputAdapter _inputAdapter;
 
         private bool _fireRequired;
         private float _moveDirectionX;
 
         private void OnEnable()
         {
-            _player.OnDead += HandlePlayerDeadEvent;
-            _inputService.OnMoveLeftKeyPressed += HandleInputMoveLeftKeyEvent;
-            _inputService.OnMoveRightKeyPressed += HandleInputMoveRightKeyEvent;
-            _inputService.OnFireKeyPressed += HandleInputFireKeyEvent;
+            _inputAdapter.OnMoveLeftKeyPressed += HandleInputMoveLeftKeyEvent;
+            _inputAdapter.OnMoveRightKeyPressed += HandleInputMoveRightKeyEvent;
+            _inputAdapter.OnFireKeyPressed += HandleInputFireKeyEvent;
         }
 
         private void OnDisable()
         {
-            _player.OnDead -= HandlePlayerDeadEvent;
-            _inputService.OnMoveLeftKeyPressed -= HandleInputMoveLeftKeyEvent;
-            _inputService.OnMoveRightKeyPressed -= HandleInputMoveRightKeyEvent;
-            _inputService.OnFireKeyPressed -= HandleInputFireKeyEvent;
+            _inputAdapter.OnMoveLeftKeyPressed -= HandleInputMoveLeftKeyEvent;
+            _inputAdapter.OnMoveRightKeyPressed -= HandleInputMoveRightKeyEvent;
+            _inputAdapter.OnFireKeyPressed -= HandleInputFireKeyEvent;
         }
 
         private void FixedUpdate()
         {
             _player.Move(new Vector2(_moveDirectionX, 0));
-        }
-
-        private void HandlePlayerDeadEvent()
-        {
-            Time.timeScale = 0;
         }
 
         private void HandleInputMoveLeftKeyEvent()
