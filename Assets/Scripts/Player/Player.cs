@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ShootEmUp
 {
@@ -24,7 +25,7 @@ namespace ShootEmUp
         [SerializeField] 
         private Transform _firePoint; 
         [SerializeField]
-        private BulletManager _bulletManager;
+        private BulletSpawner _bulletSpawner;
 
         private bool _isAlive;
         private IHealthComponent _healthComponent;
@@ -52,7 +53,7 @@ namespace ShootEmUp
         {
             _healthComponent = new HealthComponent(_defaultMaxHealth);
             _moveComponent = new MoveComponentRigidBody(_rb, _defaultMoveSpeed);
-            _fireComponent = new FireComponent(_bulletManager, _firePoint, _enemyType);
+            _fireComponent = new FireComponent(_bulletSpawner, _firePoint, _enemyType);
 
             _isAlive = true;
             

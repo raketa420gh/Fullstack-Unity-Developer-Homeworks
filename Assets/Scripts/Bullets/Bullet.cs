@@ -53,9 +53,9 @@ namespace ShootEmUp
             gameObject.layer = layer;
         }
 
-        public void SetDamageDealer(IDealDamageComponent dealDamageComponent)
+        public void SetBulletData(BulletData data)
         {
-            _dealDamageComponent = dealDamageComponent;
+            _dealDamageComponent = new DealDamageComponent(data.EnemyType, data.Damage);
         }
 
         private void Activate()

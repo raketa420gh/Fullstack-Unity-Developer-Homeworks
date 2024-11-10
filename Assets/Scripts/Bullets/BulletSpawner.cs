@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace ShootEmUp
@@ -7,19 +8,27 @@ namespace ShootEmUp
     {
         [SerializeField]
         private BulletPool _bulletsPool;
-        
+        [SerializeField]
         private LevelBounds _levelBounds;
+        [SerializeField] 
+        private BulletData[] _bulletDatabase;
 
-        public void Initialize(LevelBounds levelBounds)
+        private void Awake()
         {
-            _levelBounds = levelBounds;
             _bulletsPool.CreatePool();
         }
 
-        public void SpawnBullet(BulletData data, Vector3 position, Vector2 direction)
+        public void SpawnBulletByType(CharacterType characterType, Vector3 position, Vector2 direction)
+        {
+            BulletData bulletData = _bulletDatabase.FirstOrDefault(data => characterType == data.EnemyType);
+            
+            SpawnBullet(bulletData, position, direction);
+        }
+
+        private void SpawnBullet(BulletData data, Vector3 position, Vector2 direction)
         {
             Bullet bullet = _bulletsPool.Pool.GetFreeElement();
-            bullet.SetDamageDealer(new DealDamageComponent(data.EnemyType, data.Damage));
+            bullet.SetBulletData(data);
             bullet.SetPosition(position);
             bullet.SetColor(data.Color);
             bullet.SetLayer(data.PhysicsLayerIndex);

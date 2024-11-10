@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ShootEmUp
 {
@@ -15,7 +16,7 @@ namespace ShootEmUp
         [SerializeField] 
         private Player _player;
         [SerializeField] 
-        private BulletManager _bulletManager;
+        private BulletSpawner _bulletMSpawner;
 
         public void Initialize()
         {
@@ -25,7 +26,7 @@ namespace ShootEmUp
         public Enemy SpawnEnemyAtRandomPoint()
         {
             Enemy enemy = _enemiesPool.Pool.GetFreeElement();
-            enemy.Create(_bulletManager);
+            enemy.Create(_bulletMSpawner);
             enemy.transform.position = GetRandomSpawnPoint().position;
             enemy.transform.SetParent(_container);
             enemy.SetDestination(GetRandomAttackPoint().position);

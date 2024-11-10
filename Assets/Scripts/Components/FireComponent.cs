@@ -5,19 +5,19 @@ namespace ShootEmUp
     public sealed class FireComponent : IFireComponent
     {
         private readonly CharacterType _enemyType;
-        private readonly BulletManager _bulletManager;
+        private readonly BulletSpawner _bulletSpawner;
         private readonly Transform _firePoint;
 
-        public FireComponent(BulletManager bulletManager, Transform firePoint, CharacterType enemyType)
+        public FireComponent(BulletSpawner bulletSpawner, Transform firePoint, CharacterType enemyType)
         {
-            _bulletManager = bulletManager;
+            _bulletSpawner = bulletSpawner;
             _firePoint = firePoint;
             _enemyType = enemyType;
         }
         
         public void Fire(Vector2 direction)
         {
-             _bulletManager.SpawnBullet(_enemyType, _firePoint.position, direction);
+             _bulletSpawner.SpawnBulletByType(_enemyType, _firePoint.position, direction);
         }
     }
 }

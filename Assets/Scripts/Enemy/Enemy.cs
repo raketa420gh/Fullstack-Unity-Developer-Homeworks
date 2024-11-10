@@ -28,7 +28,7 @@ namespace ShootEmUp
         [SerializeField] 
         private float _reachDistance = 0.25f;
         
-        private BulletManager _bulletManager;
+        private BulletSpawner _bulletSpawner;
         private Player _target;
         private Vector2 _destination;
         private float _currentTime;
@@ -38,12 +38,12 @@ namespace ShootEmUp
         private IMoveComponent _moveComponent;
         private IFireComponent _fireComponent;
 
-        public void Create(BulletManager bulletManager)
+        public void Create(BulletSpawner bulletSpawner)
         {
-            _bulletManager = bulletManager;
+            _bulletSpawner = bulletSpawner;
             _healthComponent = new HealthComponent(_defaultMaxHealth);
             _moveComponent = new MoveComponentRigidBody(_rigidbody, _defaultMoveSpeed);
-            _fireComponent = new FireComponent(_bulletManager, _firePoint, CharacterType.Player);
+            _fireComponent = new FireComponent(_bulletSpawner, _firePoint, CharacterType.Player);
             
             _healthComponent.OnStateChanged += OnHealthStateChanged;
             _moveComponent.Enable();
