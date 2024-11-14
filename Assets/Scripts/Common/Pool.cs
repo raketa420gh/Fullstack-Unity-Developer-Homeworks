@@ -7,10 +7,13 @@ namespace ShootEmUp
     {
         [SerializeField]
         private T _prefab;
+        
         [SerializeField]
         private bool _autoExpand;
+        
         [SerializeField]
         private Transform _container;
+        
         [SerializeField] 
         private int _poolCapacity;
         
@@ -21,7 +24,7 @@ namespace ShootEmUp
             CreatePool(_poolCapacity);
         }
 
-        public T GetFromPool()
+        public virtual T GetFromPool()
         {
             return GetFreeElement();
         }

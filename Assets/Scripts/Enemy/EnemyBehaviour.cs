@@ -1,16 +1,64 @@
+using System;
 using UnityEngine;
 
 namespace ShootEmUp
 {
-    public sealed class Enemy : Ship
+    public sealed class EnemyBehaviour : MonoBehaviour
     {
-        [SerializeField] private float _countdown;
-        [SerializeField] private float _reachDistance = 0.25f;
+        public event Action<EnemyBehaviour> OnDead;
+        
+        [SerializeField] 
+        private Ship _ship;
+        
+        [SerializeField] 
+        private float _countdown;
+        
+        [SerializeField] 
+        private float _reachDistance = 0.25f;
         
         private Player _target;
         private Vector2 _destination;
         private float _currentTime;
         private bool _isPointReached;
+
+        private void FixedUpdate()
+        {
+            if (!_ship.IsAlive)
+                return;
+
+            if (_isPointReached)
+            {
+                _currentTime -= Time.fixedDeltaTime;
+
+                if (_currentTime <= 0)
+                {
+                    Vector2 direction = GetTargetDirection();
+                    _ship.Fire(direction);
+
+                    _currentTime += _countdown;
+                }
+            }
+            else
+            {
+                Vector2 direction = _destination - (Vector2)transform.position;
+                if (GetIsReached(direction))
+                    return;
+
+                _ship.Move(direction);
+            }
+        }
+
+        public void Create(BulletSpawner bulletSpawner)
+        {
+            _ship.Create(bulletSpawner);
+            _ship.OnDead += HandleShipDeathEvent;
+        }
+
+        public void Dispose()
+        {
+            _ship.Dispose();
+            _ship.OnDead -= HandleShipDeathEvent;
+        }
 
         public void Reset()
         {
@@ -28,36 +76,9 @@ namespace ShootEmUp
             _target = target;
         }
 
-        private void FixedUpdate()
-        {
-            if (!_isAlive)
-                return;
-
-            if (_isPointReached)
-            {
-                _currentTime -= Time.fixedDeltaTime;
-
-                if (_currentTime <= 0)
-                {
-                    Vector2 direction = GetTargetDirection();
-                    Fire(direction);
-
-                    _currentTime += _countdown;
-                }
-            }
-            else
-            {
-                Vector2 direction = _destination - (Vector2)transform.position;
-                if (GetIsReached(direction))
-                    return;
-
-                _moveComponent.Move(direction);
-            }
-        }
-
         private Vector2 GetTargetDirection()
         {
-            Vector2 startPosition = _fireComponent.FirePoint.position;
+            Vector2 startPosition = _ship.FirePointPosition;
             Vector2 vector = (Vector2)_target.transform.position - startPosition;
             Vector2 direction = vector.normalized;
             return direction;
@@ -72,6 +93,11 @@ namespace ShootEmUp
             }
 
             return false;
+        }
+
+        private void HandleShipDeathEvent(Ship ship)
+        {
+            OnDead?.Invoke(this);
         }
     }
 }

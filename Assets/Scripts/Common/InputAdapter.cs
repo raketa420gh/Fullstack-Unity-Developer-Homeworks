@@ -11,8 +11,10 @@ namespace ShootEmUp
 
         [SerializeField] 
         private KeyCode _moveLeftKey = KeyCode.LeftArrow;
+        
         [SerializeField] 
         private KeyCode _moveRightKey = KeyCode.RightArrow;
+        
         [SerializeField] 
         private KeyCode _fireKey = KeyCode.Space;
         

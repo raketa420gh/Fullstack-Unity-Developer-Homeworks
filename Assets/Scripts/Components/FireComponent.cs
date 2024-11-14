@@ -1,25 +1,29 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace ShootEmUp
 {
+    [Serializable]
     public sealed class FireComponent : IFireComponent
     {
         public Transform FirePoint => _firePoint;
         
-        private readonly CharacterType _enemyType;
-        private readonly BulletSpawner _bulletSpawner;
-        private readonly Transform _firePoint;
-        
-        public FireComponent(BulletSpawner bulletSpawner, Transform firePoint, CharacterType enemyType)
+        [SerializeField]
+        private CharacterType _enemyType;
+
+        [SerializeField]
+        private Transform _firePoint;
+
+        private BulletSpawner _bulletSpawner;
+
+        public void Set(BulletSpawner bulletSpawner)
         {
             _bulletSpawner = bulletSpawner;
-            _firePoint = firePoint;
-            _enemyType = enemyType;
         }
 
         public void Fire(Vector2 direction)
         {
-             _bulletSpawner.SpawnBulletByType(_enemyType, _firePoint.position, direction);
+             _bulletSpawner.Spawn(_enemyType, _firePoint.position, direction);
         }
     }
 }

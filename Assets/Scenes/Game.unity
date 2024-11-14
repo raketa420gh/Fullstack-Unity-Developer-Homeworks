@@ -201,6 +201,7 @@ MonoBehaviour:
   _autoExpand: 1
   _container: {fileID: 178513672}
   _poolCapacity: 10
+  _bulletSpawner: {fileID: 363245578}
 --- !u!1 &196756140
 GameObject:
   m_ObjectHideFlags: 0
@@ -243,7 +244,7 @@ GameObject:
   - component: {fileID: 356134502}
   - component: {fileID: 356134501}
   m_Layer: 0
-  m_Name: InputService
+  m_Name: InputAdapter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -487,8 +488,6 @@ MonoBehaviour:
   - {fileID: 883274640}
   _player: {fileID: 4414282821800802397}
   _bulletSpawner: {fileID: 363245578}
-  _countOfEnemiesSameTime: 5
-  _isSpawningEnabled: 1
 --- !u!1 &883274639
 GameObject:
   m_ObjectHideFlags: 0
@@ -713,6 +712,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9048567252472711235}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1703536075
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1703536076}
+  - component: {fileID: 1703536077}
+  m_Layer: 0
+  m_Name: EnemySpawnController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1703536076
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1703536075}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3951702117947426122}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1703536077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1703536075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 855d38032d4448f3bbe3446500edb2db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enemySpawner: {fileID: 562298206}
+  _countOfEnemiesSameTime: 5
+  _isSpawningEnabled: 1
+  _minDelay: 1
+  _maxDelay: 2
 --- !u!1 &1703804708
 GameObject:
   m_ObjectHideFlags: 0
@@ -1241,6 +1289,26 @@ PrefabInstance:
       propertyPath: _bulletSpawner
       value: 
       objectReference: {fileID: 363245578}
+    - target: {fileID: 191677306139651282, guid: 9699e7e809fd44b2bbf3d30c951ecbd2,
+        type: 3}
+      propertyPath: _healthComponent._health
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 191677306139651282, guid: 9699e7e809fd44b2bbf3d30c951ecbd2,
+        type: 3}
+      propertyPath: _fireComponent._firePoint
+      value: 
+      objectReference: {fileID: 4414282821800802396}
+    - target: {fileID: 191677306139651282, guid: 9699e7e809fd44b2bbf3d30c951ecbd2,
+        type: 3}
+      propertyPath: _healthComponent._maxHealth
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 191677306139651282, guid: 9699e7e809fd44b2bbf3d30c951ecbd2,
+        type: 3}
+      propertyPath: _fireComponent._bulletSpawner
+      value: 
+      objectReference: {fileID: 363245578}
     - target: {fileID: 809540891661548872, guid: 9699e7e809fd44b2bbf3d30c951ecbd2,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1334,6 +1402,7 @@ Transform:
   - {fileID: 1879759789}
   - {fileID: 363245576}
   - {fileID: 562298204}
+  - {fileID: 1703536076}
   - {fileID: 1703804709}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

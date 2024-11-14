@@ -12,10 +12,13 @@ namespace ShootEmUp
 
         [SerializeField] 
         private CharacterType _enemyType = CharacterType.Enemy;
+        
         [SerializeField] 
         private Color _color;
+        
         [SerializeField] 
         private int _physicsLayerIndex;
+        
         [SerializeField] 
         private int _damage;
     }

@@ -5,31 +5,40 @@ namespace ShootEmUp
 {
     public class Ship : MonoBehaviour, IDamageable
     {
-        public CharacterType EnemyType => _enemyType;
-        public bool IsAlive => _isAlive;
         public event Action<Ship> OnCreated;
         public event Action<Ship> OnDead;
+        public CharacterType EnemyType => _enemyType;
+        public bool IsAlive => _isAlive;
+        public Vector2 FirePointPosition => _fireComponent.FirePoint.position;
 
-        [SerializeField] private CharacterType _characterType = CharacterType.Enemy;
-        [SerializeField] private CharacterType _enemyType = CharacterType.Player;
-        [SerializeField] private int _defaultMaxHealth = 1;
-        [SerializeField] private float _defaultMoveSpeed = 3;
-        [SerializeField] private Rigidbody2D _rigidbody;
-        [SerializeField] private Transform _firePoint;
+        [SerializeField] 
+        private CharacterType _characterType = CharacterType.Enemy;
+        
+        [SerializeField] 
+        private CharacterType _enemyType = CharacterType.Player;
+        
+        [SerializeField] 
+        private float _defaultMoveSpeed = 3;
+        
+        [SerializeField] 
+        private Rigidbody2D _rigidbody;
 
+        [SerializeField]
+        private HealthComponent _healthComponent;
+
+        [SerializeField]
+        private FireComponent _fireComponent;
+
+        private IMoveComponent _moveComponent;
         private BulletSpawner _bulletSpawner;
-        private IHealthComponent _healthComponent;
-        protected IMoveComponent _moveComponent;
-        protected IFireComponent _fireComponent;
-        protected bool _isAlive;
+        private bool _isAlive;
 
         public void Create(BulletSpawner bulletSpawner)
         {
             _bulletSpawner = bulletSpawner;
-            _healthComponent = new HealthComponent(_defaultMaxHealth);
+            _fireComponent.Set(_bulletSpawner);
             _moveComponent = new MoveComponentRigidBody(_rigidbody, _defaultMoveSpeed);
-            _fireComponent = new FireComponent(_bulletSpawner, _firePoint, _enemyType);
-
+            
             _healthComponent.OnStateChanged += OnHealthStateChanged;
             _moveComponent.Enable();
 
@@ -52,6 +61,11 @@ namespace ShootEmUp
         public void TakeDamage(int damage)
         {
             _healthComponent.TakeDamage(damage);
+        }
+
+        public void Move(Vector2 direction)
+        {
+            _moveComponent.Move(direction);
         }
 
         private void OnHealthStateChanged(int currentHealth)

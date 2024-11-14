@@ -1,31 +1,36 @@
 ﻿using System;
-
+using UnityEngine;
 namespace ShootEmUp
 {
+    [Serializable]
     public sealed class HealthComponent : IHealthComponent
     {
-        public int Health { get; private set; }
-        public int MaxHealth { get; private set; }
         public event Action<int> OnStateChanged;
+
+        [SerializeField] 
+        private int _health;
+
+        [SerializeField] 
+        private int _maxHealth;
 
         public HealthComponent(int maxHealth)
         {
-            MaxHealth = maxHealth;
-            Health = MaxHealth;
+            _maxHealth = maxHealth;
+            _health = _maxHealth;
         }
 
         public float GetProgress()
         {
-            return (float)Health / MaxHealth;
+            return (float)_health / _maxHealth;
         }
 
         public void TakeDamage(int damage)
         {
-            if (Health == 0)
+            if (_health == 0)
                 return;
 
-            Health = Math.Max(0, Health - damage);
-            OnStateChanged?.Invoke(Health);
+            _health = Math.Max(0, _health - damage);
+            OnStateChanged?.Invoke(_health);
         }
     }
 }

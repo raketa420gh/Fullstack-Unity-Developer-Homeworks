@@ -4,13 +4,16 @@ namespace ShootEmUp
 {
     public class DealDamageComponent : IDealDamageComponent
     {
-        public int Damage => _damage;
-        public CharacterType EnemyType => _enemyType;
-
-        private readonly int _damage;
-        private readonly CharacterType _enemyType;
+        private CharacterType _enemyType;
+        private int _damage;
 
         public DealDamageComponent(CharacterType enemyType, int damage)
+        {
+            _enemyType = enemyType;
+            _damage = damage;
+        }
+
+        public void Set(CharacterType enemyType, int damage)
         {
             _enemyType = enemyType;
             _damage = damage;

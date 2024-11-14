@@ -4,6 +4,7 @@ namespace ShootEmUp
 {
     public interface IDealDamageComponent
     {
-        public bool DealDamage(Collider2D collider);
+        void Set(CharacterType enemyType, int damage);
+        bool DealDamage(Collider2D collider);
     }
 }

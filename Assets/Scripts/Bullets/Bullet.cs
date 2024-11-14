@@ -6,19 +6,28 @@ namespace ShootEmUp
 {
     public sealed class Bullet : MonoBehaviour
     {
-        public event Action<Bullet> OnDead; 
-
+        public event Action<Bullet> OnDead;
+        public Vector3 Position => transform.position;
+        
         [SerializeField]
         private Rigidbody2D _rigidbody;
+
         [SerializeField] 
         private SpriteRenderer _spriteRenderer;
+
         [SerializeField]
         private float _speed;
+
         [SerializeField]
         private float _lifetime;
 
         private Coroutine _coroutine;
         private IDealDamageComponent _dealDamageComponent;
+
+        private void Awake()
+        {
+            _dealDamageComponent = new DealDamageComponent(CharacterType.Enemy, 0);
+        }
 
         private void OnEnable()
         {
@@ -58,7 +67,12 @@ namespace ShootEmUp
 
         public void SetBulletData(BulletData data)
         {
-            _dealDamageComponent = new DealDamageComponent(data.EnemyType, data.Damage);
+            _dealDamageComponent.Set(data.EnemyType, data.Damage);
+        }
+        
+        public void SetActiveFalse()
+        {
+            gameObject.SetActive(false);
         }
 
         private void Activate()

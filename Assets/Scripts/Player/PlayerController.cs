@@ -6,6 +6,7 @@ namespace ShootEmUp
     {
         [SerializeField]
         private Player _player;
+        
         [SerializeField]
         private InputAdapter _inputAdapter;
 
