@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// ReSharper disable NotResolvedInText
-
 namespace Inventories
 {
     public sealed class Inventory : IEnumerable<Item>
@@ -17,59 +15,44 @@ namespace Inventories
 
         public int Width => _width;
         public int Height => _height;
-        public int Count => _itemsGrid.Count;
+        public int Count => _itemsGrid.Values.Distinct().Count();
 
-        private int _width;
-        private int _height;
+        private readonly int _width;
+        private readonly int _height;
 
         private readonly Dictionary<Vector2Int, Item> _itemsGrid = new();
 
-        public Inventory(in int width, in int height)
+        public Inventory(int width, int height)
         {
             _width = width;
             _height = height;
         }
 
-        public Inventory(
-            in int width,
-            in int height,
-            params KeyValuePair<Item, Vector2Int>[] items) : this(width, height)
+        public Inventory(int width, int height, params KeyValuePair<Item, Vector2Int>[] items) : this(width, height)
         {
-            foreach (KeyValuePair<Item, Vector2Int> item in items)
+            foreach (var item in items)
                 AddItem(item.Key, item.Value);
         }
 
-        public Inventory(
-            in int width,
-            in int height,
-            params Item[] items) : this(width, height)
+        public Inventory(int width, int height, params Item[] items) : this(width, height)
         {
-            foreach (Item item in items)
+            foreach (var item in items)
                 AddItem(item, FindFreePosition(item.Size, out Vector2Int position) ? position : Vector2Int.zero);
         }
 
-        public Inventory(
-            in int width,
-            in int height,
-            in IEnumerable<KeyValuePair<Item, Vector2Int>> items) : this(width, height)
+        public Inventory(int width, int height, IEnumerable<KeyValuePair<Item, Vector2Int>> items) : this(width, height)
         {
-            foreach (KeyValuePair<Item, Vector2Int> item in items)
+            foreach (var item in items)
                 AddItem(item.Key, item.Value);
         }
 
-        public Inventory(
-            in int width,
-            in int height,
-            in IEnumerable<Item> items) : this(width, height)
+        public Inventory(int width, int height, IEnumerable<Item> items) : this(width, height)
         {
-            foreach (Item item in items)
+            foreach (var item in items)
                 AddItem(item, FindFreePosition(item.Size, out Vector2Int position) ? position : Vector2Int.zero);
         }
 
-        /// <summary>
-        /// Checks for adding an item on a specified position
-        /// </summary>
-        public bool CanAddItem(in Item item, in Vector2Int position)
+        public bool CanAddItem(Item item, Vector2Int position)
         {
             if (position.x < 0 || position.y < 0 || position.x + item.Size.x > _width ||
                 position.y + item.Size.y > _height)
@@ -87,15 +70,12 @@ namespace Inventories
             return true;
         }
 
-        public bool CanAddItem(in Item item, in int posX, in int posY)
+        public bool CanAddItem(Item item, int posX, int posY)
             => CanAddItem(item, new Vector2Int(posX, posY));
 
-        /// <summary>
-        /// Adds an item on a specified position if not exists
-        /// </summary>
-        public bool AddItem(in Item item, in Vector2Int position)
+        public bool AddItem(Item item, Vector2Int position)
         {
-            if (!CanAddItem(item, position))
+            if (Contains(item) || !CanAddItem(item, position))
                 return false;
 
             for (int x = 0; x < item.Size.x; x++)
@@ -110,33 +90,28 @@ namespace Inventories
             return true;
         }
 
-        public bool AddItem(in Item item, in int posX, in int posY)
+        public bool AddItem(Item item, int posX, int posY)
             => AddItem(item, new Vector2Int(posX, posY));
 
-        /// <summary>
-        /// Checks for adding an item on a free position
-        /// </summary>
-        public bool CanAddItem(in Item item)
+        public bool CanAddItem(Item item)
             => FindFreePosition(item.Size, out _);
 
-        /// <summary>
-        /// Adds an item on a free position
-        /// </summary>
-        public bool AddItem(in Item item)
-            => FindFreePosition(item.Size, out Vector2Int position) && AddItem(item, position);
-
-        /// <summary>
-        /// Returns a free position for a specified item
-        /// </summary>
-        public bool FindFreePosition(in Vector2Int size, out Vector2Int freePosition)
+        public bool AddItem(Item item)
         {
-            for (int x = 0; x <= _width - size.x; x++)
+            if (item == null)
+                return false;
+
+            return FindFreePosition(item.Size, out Vector2Int position) && AddItem(item, position);
+        }
+
+        public bool FindFreePosition(Vector2Int size, out Vector2Int freePosition)
+        {
+            for (int y = 0; y <= _height - size.y; y++)
             {
-                for (int y = 0; y <= _height - size.y; y++)
+                for (int x = 0; x <= _width - size.x; x++)
                 {
                     Vector2Int position = new Vector2Int(x, y);
-                    Item tempItem = new Item(size);
-                    if (CanAddItem(tempItem, position))
+                    if (CanAddItem(new Item(size), position))
                     {
                         freePosition = position;
                         return true;
@@ -148,34 +123,21 @@ namespace Inventories
             return false;
         }
 
-        /// <summary>
-        /// Checks if a specified item exists
-        /// </summary>
-        public bool Contains(in Item item)
+        public bool Contains(Item item)
             => _itemsGrid.ContainsValue(item);
 
-        /// <summary>
-        /// Checks if a specified position is occupied
-        /// </summary>
-        public bool IsOccupied(in Vector2Int position)
+        public bool IsOccupied(Vector2Int position)
             => _itemsGrid.ContainsKey(position);
 
-        public bool IsOccupied(in int x, in int y)
+        public bool IsOccupied(int x, int y)
             => IsOccupied(new Vector2Int(x, y));
-
-        /// <summary>
-        /// Checks if a position is free
-        /// </summary>
-        public bool IsFree(in Vector2Int position)
+             public bool IsFree(Vector2Int position)
             => !IsOccupied(position);
 
-        public bool IsFree(in int x, in int y)
+        public bool IsFree(int x, int y)
             => IsFree(new Vector2Int(x, y));
 
-        /// <summary>
-        /// Removes a specified item if exists
-        /// </summary>
-        public bool RemoveItem(in Item item)
+        public bool RemoveItem(Item item)
         {
             if (!Contains(item))
                 return false;
@@ -190,7 +152,7 @@ namespace Inventories
             return true;
         }
 
-        public bool RemoveItem(in Item item, out Vector2Int position)
+        public bool RemoveItem(Item item, out Vector2Int position)
         {
             if (!Contains(item))
             {
@@ -202,24 +164,18 @@ namespace Inventories
             return RemoveItem(item);
         }
 
-        /// <summary>
-        /// Returns an item at specified position 
-        /// </summary>
-        public Item GetItem(in Vector2Int position)
+        public Item GetItem(Vector2Int position)
             => _itemsGrid.TryGetValue(position, out Item item) ? item : null;
 
-        public Item GetItem(in int x, in int y)
+        public Item GetItem(int x, int y)
             => GetItem(new Vector2Int(x, y));
 
-        public bool TryGetItem(in Vector2Int position, out Item item)
+        public bool TryGetItem(Vector2Int position, out Item item)
             => _itemsGrid.TryGetValue(position, out item);
 
-        public bool TryGetItem(in int x, in int y, out Item item)
+        public bool TryGetItem(int x, int y, out Item item)
             => TryGetItem(new Vector2Int(x, y), out item);
 
-        /// <summary>
-        /// Returns matrix positions of a specified item 
-        /// </summary>
         public Vector2Int[] GetPositions(Item item)
         {
             return _itemsGrid
@@ -228,7 +184,7 @@ namespace Inventories
                 .ToArray();
         }
 
-        public bool TryGetPositions(in Item item, out Vector2Int[] positions)
+        public bool TryGetPositions(Item item, out Vector2Int[] positions)
         {
             if (Contains(item))
             {
@@ -240,18 +196,12 @@ namespace Inventories
             return false;
         }
 
-        /// <summary>
-        /// Clears all inventory items
-        /// </summary>
         public void Clear()
         {
             _itemsGrid.Clear();
             OnCleared?.Invoke();
         }
 
-        /// <summary>
-        /// Returns a count of items with a specified name
-        /// </summary>
         public int GetItemCount(string name)
         {
             return _itemsGrid.Values
@@ -260,10 +210,7 @@ namespace Inventories
                 .Count();
         }
 
-        /// <summary>
-        /// Moves a specified item to a target position if it exists
-        /// </summary>
-        public bool MoveItem(in Item item, in Vector2Int newPosition)
+        public bool MoveItem(Item item, Vector2Int newPosition)
         {
             if (!Contains(item) || !CanAddItem(item, newPosition))
                 return false;
@@ -279,9 +226,6 @@ namespace Inventories
             return true;
         }
 
-        /// <summary>
-        /// Reorganizes inventory space to make the free area uniform
-        /// </summary>
         public void ReorganizeSpace()
         {
             List<Item> items = _itemsGrid.Values.Distinct().ToList();
@@ -293,10 +237,7 @@ namespace Inventories
             }
         }
 
-        /// <summary>
-        /// Copies inventory items to a specified matrix
-        /// </summary>
-        public void CopyTo(in Item[,] matrix)
+        public void CopyTo(Item[,] matrix)
         {
             for (int x = 0; x < _width; x++)
             {
