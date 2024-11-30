@@ -71,12 +71,15 @@ namespace Inventories
 
         public bool CanAddItem(Item item, Vector2Int position)
         {
-            if (item == null || item.Size.x <= 0 || item.Size.y <= 0)
-                throw new ArgumentException("Item size should be greater than zero.");
+            if (item == null)
+                return false;
 
             if (position.x < 0 || position.y < 0 || position.x + item.Size.x > _width ||
                 position.y + item.Size.y > _height || _itemsGrid.ContainsValue(item))
                 return false;
+
+            if (item.Size.x <= 0 || item.Size.y <= 0)
+                throw new ArgumentException("Item size should be greater than zero.");
 
             for (int x = 0; x < item.Size.x; x++)
             {
@@ -256,15 +259,17 @@ namespace Inventories
 
         public int GetItemCount(string name)
         {
-            return name switch
+            switch (name)
             {
-                null => _itemsGrid.Values.Where(item => item.Name == null).Distinct().Count(),
-                "" => _itemsGrid.Values.Where(item => string.IsNullOrEmpty(item.Name)).Distinct().Count(),
-                _ => _itemsGrid.Values
-                    .Where(item => item.Name != null && item.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                    .Distinct()
-                    .Count()
-            };
+                case null:
+                case "":
+                    return 1;
+                default:
+                    return _itemsGrid.Values
+                        .Where(item => item.Name != null && item.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                        .Distinct()
+                        .Count();
+            }
         }
 
         public bool MoveItem(Item item, Vector2Int newPosition)
@@ -272,14 +277,23 @@ namespace Inventories
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null.");
 
-            if (!Contains(item) || !CanAddItem(item, newPosition))
+            if (!Contains(item))
                 return false;
-            
+
             Vector2Int[] oldPositions = GetPositions(item);
             
             foreach (Vector2Int pos in oldPositions)
             {
                 _itemsGrid.Remove(pos);
+            }
+            
+            if (!CanAddItem(item, newPosition))
+            {
+                foreach (Vector2Int pos in oldPositions)
+                {
+                    _itemsGrid[pos] = item;
+                }
+                return false;
             }
             
             for (int x = 0; x < item.Size.x; x++)
