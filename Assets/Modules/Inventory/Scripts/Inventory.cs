@@ -7,338 +7,379 @@ using UnityEngine;
 namespace Inventories
 {
     public sealed class Inventory : IEnumerable<Item>
+{
+    public event Action<Item, Vector2Int> OnAdded;
+    public event Action<Item, Vector2Int> OnRemoved;
+    public event Action<Item, Vector2Int> OnMoved;
+    public event Action OnCleared;
+
+    public int Width => _width;
+    public int Height => _height;
+    public int Count => _itemsPositionMap.Count;
+
+    private readonly int _width;
+    private readonly int _height;
+
+    private readonly Item[,] _itemsGrid;
+    private readonly Dictionary<Item, Vector2Int> _itemsPositionMap = new();
+
+    public Inventory(int width, int height)
     {
-        public event Action<Item, Vector2Int> OnAdded;
-        public event Action<Item, Vector2Int> OnRemoved;
-        public event Action<Item, Vector2Int> OnMoved;
-        public event Action OnCleared;
+        if (width <= 0)
+            throw new ArgumentOutOfRangeException(nameof(width), "Width must be greater than zero.");
+        if (height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(height), "Height must be greater than zero.");
 
-        public int Width => _width;
-        public int Height => _height;
-        public int Count => _itemsGrid.Values.Distinct().Count();
+        _width = width;
+        _height = height;
+        _itemsGrid = new Item[width, height];
+    }
 
-        private readonly int _width;
-        private readonly int _height;
+    public Inventory(int width, int height, params KeyValuePair<Item, Vector2Int>[] items) : this(width, height)
+    {
+        if (items == null)
+            throw new ArgumentNullException(nameof(items), "Items collection cannot be null.");
 
-        private readonly Dictionary<Vector2Int, Item> _itemsGrid = new();
+        foreach (var item in items)
+            AddItem(item.Key, item.Value);
+    }
 
-        public Inventory(int width, int height)
+    public Inventory(int width, int height, params Item[] items) : this(width, height)
+    {
+        if (items == null)
+            throw new ArgumentNullException(nameof(items), "Items collection cannot be null.");
+
+        foreach (var item in items)
+            AddItem(item, FindFreePosition(item.Size, out Vector2Int position) ? position : Vector2Int.zero);
+    }
+
+    public Inventory(int width, int height, IEnumerable<KeyValuePair<Item, Vector2Int>> items) : this(width, height)
+    {
+        if (items == null)
+            throw new ArgumentNullException(nameof(items), "Items collection cannot be null.");
+
+        foreach (var item in items)
+            AddItem(item.Key, item.Value);
+    }
+
+    public Inventory(int width, int height, IEnumerable<Item> items) : this(width, height)
+    {
+        if (items == null)
+            throw new ArgumentNullException(nameof(items), "Items collection cannot be null.");
+
+        foreach (var item in items)
+            AddItem(item, FindFreePosition(item.Size, out Vector2Int position) ? position : Vector2Int.zero);
+    }
+
+    public bool CanAddItem(Item item, Vector2Int position)
+    {
+        if (item == null)
+            return false;
+
+        if (position.x < 0 || position.y < 0 || position.x + item.Size.x > _width ||
+            position.y + item.Size.y > _height)
+            return false;
+
+        if (_itemsPositionMap.ContainsKey(item))
+            return false;
+
+        if (item.Size.x <= 0 || item.Size.y <= 0)
+            throw new ArgumentException("Item size should be greater than zero.");
+
+        for (int x = 0; x < item.Size.x; x++)
         {
-            if (width <= 0)
-                throw new ArgumentOutOfRangeException(nameof(width), "Width must be greater than zero.");
-            if (height <= 0)
-                throw new ArgumentOutOfRangeException(nameof(height), "Height must be greater than zero.");
-    
-            _width = width;
-            _height = height;
-        }
-
-        public Inventory(int width, int height, params KeyValuePair<Item, Vector2Int>[] items) : this(width, height)
-        {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items), "Items collection cannot be null.");
-
-            foreach (var item in items)
-                AddItem(item.Key, item.Value);
-        }
-
-        public Inventory(int width, int height, params Item[] items) : this(width, height)
-        {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items), "Items collection cannot be null.");
-
-            foreach (var item in items)
-                AddItem(item, FindFreePosition(item.Size, out Vector2Int position) ? position : Vector2Int.zero);
-        }
-
-        public Inventory(int width, int height, IEnumerable<KeyValuePair<Item, Vector2Int>> items) : this(width, height)
-        {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items), "Items collection cannot be null.");
-
-            foreach (var item in items)
-                AddItem(item.Key, item.Value);
-        }
-
-        public Inventory(int width, int height, IEnumerable<Item> items) : this(width, height)
-        {
-            if (items == null)
-                throw new ArgumentNullException(nameof(items), "Items collection cannot be null.");
-
-            foreach (var item in items)
-                AddItem(item, FindFreePosition(item.Size, out Vector2Int position) ? position : Vector2Int.zero);
-        }
-
-        public bool CanAddItem(Item item, Vector2Int position)
-        {
-            if (item == null)
-                return false;
-
-            if (position.x < 0 || position.y < 0 || position.x + item.Size.x > _width ||
-                position.y + item.Size.y > _height || _itemsGrid.ContainsValue(item))
-                return false;
-
-            if (item.Size.x <= 0 || item.Size.y <= 0)
-                throw new ArgumentException("Item size should be greater than zero.");
-
-            for (int x = 0; x < item.Size.x; x++)
+            for (int y = 0; y < item.Size.y; y++)
             {
-                for (int y = 0; y < item.Size.y; y++)
+                if (_itemsGrid[position.x + x, position.y + y] != null)
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    public bool AddItem(Item item, int posX, int posY)
+        => AddItem(item, new Vector2Int(posX, posY));
+
+    public bool CanAddItem(Item item, int posX, int posY)
+        => CanAddItem(item, new Vector2Int(posX, posY));
+
+    public bool AddItem(Item item, Vector2Int position)
+    {
+        if (item == null)
+            return false;
+
+        if (Contains(item) || !CanAddItem(item, position))
+            return false;
+
+        for (int x = 0; x < item.Size.x; x++)
+        {
+            for (int y = 0; y < item.Size.y; y++)
+            {
+                _itemsGrid[position.x + x, position.y + y] = item;
+            }
+        }
+
+        _itemsPositionMap[item] = position;
+        OnAdded?.Invoke(item, position);
+        return true;
+    }
+
+    public bool CanAddItem(Item item)
+    {
+        if (item == null || _itemsPositionMap.ContainsKey(item))
+            return false;
+
+        return FindFreePosition(item.Size, out _);
+    }
+
+    public bool AddItem(Item item)
+    {
+        if (!CanAddItem(item))
+            return false;
+
+        return FindFreePosition(item.Size, out Vector2Int position) && AddItem(item, position);
+    }
+
+    public bool FindFreePosition(Vector2Int size, out Vector2Int freePosition)
+    {
+        if (size.x <= 0 || size.y <= 0)
+            throw new ArgumentOutOfRangeException("Size should be greater than zero.");
+
+        for (int y = 0; y <= _height - size.y; y++)
+        {
+            for (int x = 0; x <= _width - size.x; x++)
+            {
+                Vector2Int position = new Vector2Int(x, y);
+                if (CanAddItem(new Item(size), position))
                 {
-                    if (_itemsGrid.ContainsKey(new Vector2Int(position.x + x, position.y + y)))
-                        return false;
+                    freePosition = position;
+                    return true;
                 }
             }
-
-            return true;
         }
 
-        public bool CanAddItem(Item item, int posX, int posY)
-            => CanAddItem(item, new Vector2Int(posX, posY));
+        freePosition = Vector2Int.zero;
+        return false;
+    }
 
-        public bool AddItem(Item item, Vector2Int position)
+    public bool Contains(Item item)
+        => _itemsPositionMap.ContainsKey(item);
+
+    public bool IsFree(int x, int y)
+        => IsFree(new Vector2Int(x, y));
+
+    public bool RemoveItem(Item item, out Vector2Int position)
+    {
+        if (!Contains(item))
         {
-            if (item == null)
-                return false;
-
-            if (Contains(item) || !CanAddItem(item, position))
-                return false;
-            
-            if (item.Size.x <= 0 || item.Size.y <= 0)
-                throw new ArgumentException("Item size should be greater than zero.");
-
-            for (int x = 0; x < item.Size.x; x++)
-            {
-                for (int y = 0; y < item.Size.y; y++)
-                {
-                    _itemsGrid[new Vector2Int(position.x + x, position.y + y)] = item;
-                }
-            }
-
-            OnAdded?.Invoke(item, position);
-            return true;
-        }
-
-        public bool AddItem(Item item, int posX, int posY)
-            => AddItem(item, new Vector2Int(posX, posY));
-
-        public bool CanAddItem(Item item)
-        {
-            if (item == null || _itemsGrid.ContainsValue(item))
-                return false;
-
-            return FindFreePosition(item.Size, out _);
-        }
-
-        public bool AddItem(Item item)
-        {
-            if (!CanAddItem(item))
-                return false;
-
-            return FindFreePosition(item.Size, out Vector2Int position) && AddItem(item, position);
-        }
-
-        public bool FindFreePosition(Vector2Int size, out Vector2Int freePosition)
-        {
-            if (size.x <= 0 || size.y <= 0)
-                throw new ArgumentOutOfRangeException("Size should be greater than zero.");
-
-            for (int y = 0; y <= _height - size.y; y++)
-            {
-                for (int x = 0; x <= _width - size.x; x++)
-                {
-                    Vector2Int position = new Vector2Int(x, y);
-                    if (CanAddItem(new Item(size), position))
-                    {
-                        freePosition = position;
-                        return true;
-                    }
-                }
-            }
-
-            freePosition = Vector2Int.zero;
+            position = Vector2Int.zero;
             return false;
         }
 
-        public bool Contains(Item item)
-            => _itemsGrid.ContainsValue(item);
+        position = _itemsPositionMap[item];
+        return RemoveItem(item);
+    }
 
-        public bool IsOccupied(Vector2Int position)
-            => _itemsGrid.ContainsKey(position);
+    public Item GetItem(Vector2Int position)
+    {
+        if (position.x < 0 || position.x >= _width || position.y < 0 || position.y >= _height)
+            throw new IndexOutOfRangeException("Position is out of range.");
 
-        public bool IsOccupied(int x, int y)
-            => IsOccupied(new Vector2Int(x, y));
+        Item item = _itemsGrid[position.x, position.y];
+        if (item == null)
+            throw new NullReferenceException("Item not found at the specified position.");
 
-        public bool IsFree(Vector2Int position)
-            => !IsOccupied(position);
+        return item;
+    }
 
-        public bool IsFree(int x, int y)
-            => IsFree(new Vector2Int(x, y));
+    public Item GetItem(int x, int y)
+        => GetItem(new Vector2Int(x, y));
 
-        public bool RemoveItem(Item item)
-        {
-            if (!Contains(item))
-                return false;
-
-            Vector2Int[] positions = GetPositions(item);
-            foreach (Vector2Int pos in positions)
-            {
-                _itemsGrid.Remove(pos);
-            }
-
-            OnRemoved?.Invoke(item, positions.First());
-            return true;
-        }
-
-        public bool RemoveItem(Item item, out Vector2Int position)
-        {
-            if (!Contains(item))
-            {
-                position = Vector2Int.zero;
-                return false;
-            }
-
-            position = GetPositions(item).First();
-            return RemoveItem(item);
-        }
-
-        public Item GetItem(Vector2Int position)
-        {
-            if (position.x < 0 || position.x >= _width || position.y < 0 || position.y >= _height)
-                throw new IndexOutOfRangeException("Position is out of range.");
-
-            if (!_itemsGrid.TryGetValue(position, out Item item))
-                throw new NullReferenceException("Item not found at the specified position.");
-
-            return item;
-        }
-
-        public Item GetItem(int x, int y)
-            => GetItem(new Vector2Int(x, y));
-
-        public bool TryGetItem(Vector2Int position, out Item item)
-            => _itemsGrid.TryGetValue(position, out item);
-
-        public bool TryGetItem(int x, int y, out Item item)
-            => TryGetItem(new Vector2Int(x, y), out item);
-
-        public Vector2Int[] GetPositions(Item item)
-        {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item), "Item cannot be null.");
-
-            if (!Contains(item))
-                throw new KeyNotFoundException("The specified item is not present in the inventory.");
-
-            return _itemsGrid
-                .Where(kvp => kvp.Value.Equals(item))
-                .Select(kvp => kvp.Key)
-                .ToArray();
-        }
-
-        public bool TryGetPositions(Item item, out Vector2Int[] positions)
-        {
-            if (Contains(item))
-            {
-                positions = GetPositions(item);
-                return true;
-            }
-
-            positions = null;
+    public bool TryGetItem(Vector2Int position, out Item item)
+    {
+        item = null;
+        if (position.x < 0 || position.x >= _width || position.y < 0 || position.y >= _height)
             return false;
-        }
 
-        public void Clear()
+        item = _itemsGrid[position.x, position.y];
+        return item != null;
+    }
+
+    public bool TryGetItem(int x, int y, out Item item)
+        => TryGetItem(new Vector2Int(x, y), out item);
+
+    public Vector2Int[] GetPositions(Item item)
+    {
+        if (item == null)
+            throw new ArgumentNullException(nameof(item), "Item cannot be null.");
+
+        if (!Contains(item))
+            throw new KeyNotFoundException("The specified item is not present in the inventory.");
+
+        Vector2Int startPosition = _itemsPositionMap[item];
+        List<Vector2Int> positions = new List<Vector2Int>();
+
+        for (int x = 0; x < item.Size.x; x++)
         {
-            if (_itemsGrid.Count == 0)
-                return; 
-
-            _itemsGrid.Clear();
-            OnCleared?.Invoke();
-        }
-
-        public int GetItemCount(string name)
-        {
-            switch (name)
+            for (int y = 0; y < item.Size.y; y++)
             {
-                case null:
-                case "":
-                    return 1;
-                default:
-                    return _itemsGrid.Values
-                        .Where(item => item.Name != null && item.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                        .Distinct()
-                        .Count();
+                positions.Add(new Vector2Int(startPosition.x + x, startPosition.y + y));
             }
         }
 
-        public bool MoveItem(Item item, Vector2Int newPosition)
+        return positions.ToArray();
+    }
+
+    public bool TryGetPositions(Item item, out Vector2Int[] positions)
+    {
+        positions = null;
+
+        if (item == null || !_itemsPositionMap.ContainsKey(item))
+            return false;
+
+        Vector2Int startPosition = _itemsPositionMap[item];
+        positions = new Vector2Int[item.Size.x * item.Size.y];
+
+        int index = 0;
+        for (int x = 0; x < item.Size.x; x++)
         {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item), "Item cannot be null.");
-
-            if (!Contains(item))
-                return false;
-
-            Vector2Int[] oldPositions = GetPositions(item);
-            
-            foreach (Vector2Int pos in oldPositions)
+            for (int y = 0; y < item.Size.y; y++)
             {
-                _itemsGrid.Remove(pos);
+                positions[index++] = new Vector2Int(startPosition.x + x, startPosition.y + y);
             }
-            
-            if (!CanAddItem(item, newPosition))
-            {
-                foreach (Vector2Int pos in oldPositions)
-                {
-                    _itemsGrid[pos] = item;
-                }
-                return false;
-            }
-            
-            for (int x = 0; x < item.Size.x; x++)
-            {
-                for (int y = 0; y < item.Size.y; y++)
-                {
-                    _itemsGrid[new Vector2Int(newPosition.x + x, newPosition.y + y)] = item;
-                }
-            }
-            
-            OnMoved?.Invoke(item, newPosition);
-            return true;
         }
 
-        public void ReorganizeSpace()
-        {
-            List<Item> items = _itemsGrid.Values.Distinct().ToList();
-            Clear();
+        return true;
+    }
 
-            foreach (Item item in items)
+    public void Clear()
+    {
+        if (_itemsPositionMap.Count == 0)
+            return;
+
+        Array.Clear(_itemsGrid, 0, _itemsGrid.Length);
+        _itemsPositionMap.Clear();
+        OnCleared?.Invoke();
+    }
+
+    public int GetItemCount(string name)
+    {
+        switch (name)
+        {
+            case null:
+            case "":
+                return _itemsPositionMap.Keys.Count(item => item.Name == null);
+            default:
+                return _itemsPositionMap.Keys
+                    .Count(item => item.Name != null && item.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
+    public bool MoveItem(Item item, Vector2Int newPosition)
+    {
+        if (item == null)
+            throw new ArgumentNullException(nameof(item), "Item cannot be null.");
+
+        if (!Contains(item))
+            return false;
+
+        Vector2Int[] oldPositions = GetPositions(item);
+
+        if (!CanAddItem(item, newPosition))
+            return false;
+
+        foreach (Vector2Int pos in oldPositions)
+        {
+            _itemsGrid[pos.x, pos.y] = null;
+        }
+
+        for (int x = 0; x < item.Size.x; x++)
+        {
+            for (int y = 0; y < item.Size.y; y++)
             {
-                FindFreePosition(item.Size, out Vector2Int position);
+                _itemsGrid[newPosition.x + x, newPosition.y + y] = item;
+            }
+        }
+
+        _itemsPositionMap[item] = newPosition;
+        OnMoved?.Invoke(item, newPosition);
+        return true;
+    }
+
+    public void ReorganizeSpace()
+    {
+        Clear();
+        List<Item> items = _itemsPositionMap.Keys.ToList();
+
+        items.Sort((a, b) => (b.Size.x * b.Size.y).CompareTo(a.Size.x * a.Size.y));
+
+        foreach (Item item in items)
+        {
+            if (FindFreePosition(item.Size, out Vector2Int position))
+            {
                 AddItem(item, position);
             }
         }
+    }
 
-        public void CopyTo(Item[,] matrix)
+    public void CopyTo(Item[,] matrix)
+    {
+        if (matrix.GetLength(0) != _width || matrix.GetLength(1) != _height)
+            throw new ArgumentException("Matrix size does not match inventory dimensions.");
+
+        for (int x = 0; x < _width; x++)
         {
-            for (int x = 0; x < _width; x++)
+            for (int y = 0; y < _height; y++)
             {
-                for (int y = 0; y < _height; y++)
-                {
-                    matrix[x, y] = GetItem(new Vector2Int(x, y));
-                }
+                matrix[x, y] = _itemsGrid[x, y];
             }
         }
-
-        public IEnumerator<Item> GetEnumerator()
-        {
-            return _itemsGrid.Values.Distinct().GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
     }
+
+    public IEnumerator<Item> GetEnumerator()
+    {
+        return _itemsPositionMap.Keys.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public bool IsOccupied(int x, int y)
+        => IsOccupied(new Vector2Int(x, y));
+
+    private bool IsOccupied(Vector2Int position)
+    {
+        if (position.x < 0 || position.x >= _width || position.y < 0 || position.y >= _height)
+            throw new IndexOutOfRangeException("Position is out of range.");
+
+        return _itemsGrid[position.x, position.y] != null;
+    }
+
+    private bool IsFree(Vector2Int position)
+    {
+        if (position.x < 0 || position.x >= _width || position.y < 0 || position.y >= _height)
+            throw new IndexOutOfRangeException("Position is out of range.");
+
+        return _itemsGrid[position.x, position.y] == null;
+    }
+
+    private bool RemoveItem(Item item)
+    {
+        if (!Contains(item))
+            return false;
+
+        Vector2Int[] positions = GetPositions(item);
+        foreach (Vector2Int pos in positions)
+        {
+            _itemsGrid[pos.x, pos.y] = null;
+        }
+
+        _itemsPositionMap.Remove(item);
+        OnRemoved?.Invoke(item, positions.First());
+        return true;
+    }
+}
 }
