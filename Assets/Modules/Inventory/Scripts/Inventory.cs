@@ -26,7 +26,7 @@ namespace Inventories
         public Inventory(int width, int height)
         {
             if (width <= 0 || height <= 0)
-                throw new ArgumentException("Incorrect width or height");
+                throw new ArgumentOutOfRangeException("Width and height must be greater than zero.");
 
             _width = width;
             _height = height;
@@ -79,7 +79,7 @@ namespace Inventories
 
             if (position.x < 0 || position.y < 0 || position.x + item.Size.x > _width ||
                 position.y + item.Size.y > _height)
-                throw new ArgumentException();
+                return false;
 
             if (item.Size.x <= 0 || item.Size.y <= 0)
                 throw new ArgumentException();
@@ -110,8 +110,8 @@ namespace Inventories
             if (Contains(item))
                 return false;
 
-            if (!CanAddItem(item, position) || position.x < 0 || position.y < 0 || position.x > _width || position.y > _height)
-                throw new ArgumentException();
+            if (!CanAddItem(item, position))
+                return false;
 
             for (int x = 0; x < item.Size.x; x++)
             {
@@ -188,7 +188,7 @@ namespace Inventories
                 throw new IndexOutOfRangeException("Position is out of range.");
 
             Item item = _itemsGrid[position.x, position.y];
-            
+
             if (item == null)
                 throw new NullReferenceException("Item not found at the specified position.");
 
@@ -267,15 +267,7 @@ namespace Inventories
 
         public int GetItemCount(string name)
         {
-            switch (name)
-            {
-                case null:
-                case "":
-                    return _itemsPositionMap.Keys.Count(item => item.Name == null);
-                default:
-                    return _itemsPositionMap.Keys
-                        .Count(item => item.Name != null && item.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            }
+            return _itemsPositionMap.Keys.Count(item => item.Name == name);
         }
 
         public bool MoveItem(Item item, Vector2Int newPosition)
@@ -286,13 +278,10 @@ namespace Inventories
             if (!Contains(item))
                 return false;
 
-            Vector2Int[] oldPositions = GetPositions(item);
-
-            foreach (Vector2Int pos in oldPositions)
-            {
-                _itemsGrid[pos.x, pos.y] = null;
-            }
-
+            if (!CanAddItem(item, newPosition))
+                return false;
+            
+            _itemsPositionMap[item] = newPosition;
             for (int x = 0; x < item.Size.x; x++)
             {
                 for (int y = 0; y < item.Size.y; y++)
@@ -301,7 +290,6 @@ namespace Inventories
                 }
             }
 
-            _itemsPositionMap[item] = newPosition;
             OnMoved?.Invoke(item, newPosition);
             return true;
         }
@@ -310,15 +298,6 @@ namespace Inventories
         {
             List<Item> items = _itemsPositionMap.Keys.ToList();
             items.Sort((a, b) => (b.Size.x * b.Size.y).CompareTo(a.Size.x * a.Size.y));
-            Clear();
-
-            foreach (Item item in items)
-            {
-                if (FindFreePosition(item.Size, out Vector2Int position))
-                {
-                    AddItem(item, position);
-                }
-            }
         }
 
         public void CopyTo(Item[,] matrix)
