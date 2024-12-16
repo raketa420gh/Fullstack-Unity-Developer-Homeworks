@@ -74,15 +74,18 @@ namespace Inventories
             if (item == null)
                 return false;
 
+            if (item.Size.x > _width || item.Size.y > _height)
+                throw new ArgumentException();
+            
+            if (item.Size.x <= 0 || item.Size.y <= 0)
+                throw new ArgumentException();
+
             if (_itemsPositionMap.ContainsKey(item))
                 return false;
 
             if (position.x < 0 || position.y < 0 || position.x + item.Size.x > _width ||
                 position.y + item.Size.y > _height)
                 return false;
-
-            if (item.Size.x <= 0 || item.Size.y <= 0)
-                throw new ArgumentException();
 
             for (int x = 0; x < item.Size.x; x++)
             {
