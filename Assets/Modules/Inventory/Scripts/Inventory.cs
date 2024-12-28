@@ -76,7 +76,7 @@ namespace Inventories
 
             if (item.Size.x > _width || item.Size.y > _height)
                 throw new ArgumentException();
-            
+
             if (item.Size.x <= 0 || item.Size.y <= 0)
                 throw new ArgumentException();
 
@@ -283,15 +283,12 @@ namespace Inventories
 
             if (!CanAddItem(item, newPosition))
                 return false;
-            
+
+            Vector2Int oldPosition = _itemsPositionMap[item];
+            ClearItemFromGrid(item, oldPosition);
+
             _itemsPositionMap[item] = newPosition;
-            for (int x = 0; x < item.Size.x; x++)
-            {
-                for (int y = 0; y < item.Size.y; y++)
-                {
-                    _itemsGrid[newPosition.x + x, newPosition.y + y] = item;
-                }
-            }
+            PlaceItemInGrid(item, newPosition);
 
             OnMoved?.Invoke(item, newPosition);
             return true;
@@ -299,8 +296,18 @@ namespace Inventories
 
         public void ReorganizeSpace()
         {
-            List<Item> items = _itemsPositionMap.Keys.ToList();
-            items.Sort((a, b) => (b.Size.x * b.Size.y).CompareTo(a.Size.x * a.Size.y));
+            List<KeyValuePair<Item, Vector2Int>> itemsToReorganize = _itemsPositionMap.ToList();
+            ClearGrid();
+            foreach (var kvp in itemsToReorganize)
+            {
+                Item item = kvp.Key;
+                Vector2Int originalPosition = kvp.Value;
+
+                if (CanAddItem(item, originalPosition))
+                {
+                    PlaceItemInGrid(item, originalPosition);
+                }
+            }
         }
 
         public void CopyTo(Item[,] matrix)
@@ -344,6 +351,39 @@ namespace Inventories
                 throw new IndexOutOfRangeException("Position is out of range.");
 
             return _itemsGrid[position.x, position.y] == null;
+        }
+
+        private void ClearGrid()
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                for (int y = 0; y < _height; y++)
+                {
+                    _itemsGrid[x, y] = null;
+                }
+            }
+        }
+
+        private void ClearItemFromGrid(Item item, Vector2Int position)
+        {
+            for (int x = 0; x < item.Size.x; x++)
+            {
+                for (int y = 0; y < item.Size.y; y++)
+                {
+                    _itemsGrid[position.x + x, position.y + y] = null;
+                }
+            }
+        }
+
+        private void PlaceItemInGrid(Item item, Vector2Int position)
+        {
+            for (int x = 0; x < item.Size.x; x++)
+            {
+                for (int y = 0; y < item.Size.y; y++)
+                {
+                    _itemsGrid[position.x + x, position.y + y] = item;
+                }
+            }
         }
 
         private bool RemoveItem(Item item)
