@@ -1,5 +1,5 @@
 public enum ResourceType
 {
-    Log,
-    Plank
+    Logs,
+    Planks
 }
