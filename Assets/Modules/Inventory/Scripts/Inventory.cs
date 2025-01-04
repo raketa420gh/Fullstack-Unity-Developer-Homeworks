@@ -276,36 +276,53 @@ namespace Inventories
         public bool MoveItem(Item item, Vector2Int newPosition)
         {
             if (item == null)
-                throw new ArgumentNullException(nameof(item), "Item cannot be null.");
+                throw new ArgumentNullException(nameof(item));
 
-            if (!Contains(item))
+            if (!IsValidPosition(newPosition))
                 return false;
 
-            if (!CanAddItem(item, newPosition))
+            if (!_itemsPositionMap.TryGetValue(item, out Vector2Int oldPosition))
                 return false;
 
-            Vector2Int oldPosition = _itemsPositionMap[item];
-            ClearItemFromGrid(item, oldPosition);
+            if (!CanPlaceItemAtPosition(item, newPosition))
+                return false;
 
-            _itemsPositionMap[item] = newPosition;
-            PlaceItemInGrid(item, newPosition);
-
+            RemoveItemFromGrid(item, oldPosition);
+            PlaceItemAtPosition(item, newPosition);
             OnMoved?.Invoke(item, newPosition);
             return true;
         }
 
         public void ReorganizeSpace()
         {
-            List<KeyValuePair<Item, Vector2Int>> itemsToReorganize = _itemsPositionMap.ToList();
-            ClearGrid();
-            foreach (var kvp in itemsToReorganize)
-            {
-                Item item = kvp.Key;
-                Vector2Int originalPosition = kvp.Value;
+            List<Item> itemsList = _itemsPositionMap.Keys.ToList();
 
-                if (CanAddItem(item, originalPosition))
+            foreach (var item in itemsList)
+            {
+                RemoveItem(item);
+            }
+
+            itemsList.Sort((itemA, itemB) =>
+            {
+                var areaA = itemA.Size.x * itemA.Size.y;
+                var areaB = itemB.Size.x * itemB.Size.y;
+                return areaB.CompareTo(areaA);
+            });
+
+            foreach (var item in itemsList)
+            {
+                bool itemPlaced = false;
+                for (var y = 0; y < _height && !itemPlaced; y++)
                 {
-                    PlaceItemInGrid(item, originalPosition);
+                    for (var x = 0; x < _width && !itemPlaced; x++)
+                    {
+                        var position = new Vector2Int(x, y);
+                        if (CanAddItem(item, position))
+                        {
+                            AddItem(item, position);
+                            itemPlaced = true;
+                        }
+                    }
                 }
             }
         }
@@ -329,13 +346,13 @@ namespace Inventories
             return _itemsPositionMap.Keys.GetEnumerator();
         }
 
+        public bool IsOccupied(int x, int y)
+            => IsOccupied(new Vector2Int(x, y));
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
-
-        public bool IsOccupied(int x, int y)
-            => IsOccupied(new Vector2Int(x, y));
 
         private bool IsOccupied(Vector2Int position)
         {
@@ -399,6 +416,62 @@ namespace Inventories
 
             _itemsPositionMap.Remove(item);
             OnRemoved?.Invoke(item, positions.First());
+            return true;
+        }
+        
+        private bool IsValidPosition(Vector2Int position) =>
+            position.x >= 0 && position.x < _width &&
+            position.y >= 0 && position.y < _height;
+
+        private void RemoveItemFromGrid(Item item, Vector2Int position)
+        {
+            int itemWidth = item.Size.x;
+            var itemHeight = item.Size.y;
+
+            for (var x = position.x; x < position.x + itemWidth; x++)
+            {
+                for (var y = position.y; y < position.y + itemHeight; y++)
+                {
+                    _itemsGrid[x, y] = null;
+                }
+            }
+
+            _itemsPositionMap.Remove(item);
+        }
+
+        private void PlaceItemAtPosition(Item item, Vector2Int position)
+        {
+            int itemWidth = item.Size.x;
+            int itemHeight = item.Size.y;
+
+            for (var x = position.x; x < position.x + itemWidth; x++)
+            {
+                for (var y = position.y; y < position.y + itemHeight; y++)
+                {
+                    _itemsGrid[x, y] = item;
+                }
+            }
+
+            _itemsPositionMap[item] = position;
+        }
+
+        private bool CanPlaceItemAtPosition(Item item, Vector2Int position)
+        {
+            var itemWidth = item.Size.x;
+            var itemHeight = item.Size.y;
+
+            if (position.x + itemWidth > _width || position.y + itemHeight > _height)
+                return false;
+
+            for (var x = position.x; x < position.x + itemWidth; x++)
+            {
+                for (var y = position.y; y < position.y + itemHeight; y++)
+                {
+                    if (_itemsGrid[x, y] != null && !_itemsGrid[x, y].Equals(item))
+                        return false;
+                }
+            }
+
             return true;
         }
     }
