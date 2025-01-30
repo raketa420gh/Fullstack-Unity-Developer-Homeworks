@@ -5,12 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5300f895-8a75-48b1-bf94-b7ab29db0a19" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Tests/InventoryTests.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Tests/InventoryTests.cs.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.Fullstack-Unity-Developer-Homeworks/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fullstack-Unity-Developer-Homeworks/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Scripts/ResourceConfig.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Scripts/ResourceConfig.cs.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Scripts/ResourceConverter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Scripts/ResourceConverter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Scripts/ResourceZone.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Scripts/ResourceZone.cs.meta" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Tests/ResourceConverterTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Modules/ResourceConverter/Tests/ResourceConverterTests.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,8 +28,6 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/10b6135e63434fdba4fc6c109928ab3b50800/d8/8e2600b3/Is.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1a34d7ee85f44ff2a9df5d0ea5a6ee325735b0/4c/b8c39eec/ResourceType.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/Downloads/Telegram Desktop/Inventory.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://R:/Gamedev/Unity/Projects/Fullstack-Unity-Developer-Homeworks/Assets/Modules/Inventory/Scripts/Inventory.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Assets/Modules/ResourceConverter/Scripts/ResourceConfig.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Modules/ResourceConverter/Scripts/ResourceConverter.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Modules/ResourceConverter/Tests/ResourceConverterTests.cs" root0="FORCE_HIGHLIGHTING" />
   </component>

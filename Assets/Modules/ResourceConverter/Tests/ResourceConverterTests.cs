@@ -1,52 +1,66 @@
+using System;
 using NUnit.Framework;
 
 namespace Modules.ResourceConverter
 {
     public class ResourceConverterTests
     {
-        [Test]
-        public void Instantiate()
+        [TestCase(1, 100)]
+        [TestCase(100, 1)]
+        [TestCase(3, 73)]
+        public void Instantiate(int inputCapacity, int outputCapacity)
         {
             //Arrange:
-            var resourceConverter = new ResourceConverter();
+            var resourceConverter = new ResourceConverter(ResourceType.Logs, ResourceType.Planks, 
+                inputCapacity, outputCapacity);
             
             //Assert:
             Assert.IsNotNull(resourceConverter);
+            Assert.AreEqual(inputCapacity, resourceConverter.InputCapacity);
+            Assert.AreEqual(outputCapacity, resourceConverter.OutputCapacity);
+            Assert.AreEqual(0, resourceConverter.InputCount);
+            Assert.AreEqual(0, resourceConverter.OutputCount);
         }
         
-        public void InstantiateWithInvalidArgs(int inputCapacity, int outputCapacity)
+        [TestCase(-1, 1)]
+        [TestCase(3, -5)]
+        [TestCase(-7, -9)]
+        [TestCase(0, 10)]
+        [TestCase(15, 0)]
+        public void WhenInstantiateWithInvalidCapacityThenException(int inputCapacity, int outputCapacity)
         {
-            
+            //Assert:
+            Assert.Catch<ArgumentOutOfRangeException>(() =>
+            {
+                var _ = new ResourceConverter(ResourceType.Logs, ResourceType.Planks, 
+                    inputCapacity, outputCapacity);
+            });
         }
 
-        [Test]
-        public void StartConvertingWithResource()
+        [TestCase(0)]
+        [TestCase(-50)]
+        public void WhenInstantiateWithInvalidConvertingDurationThenException(float convertingDuration)
         {
-            //Arrange:
-            var resourceConverter = new ResourceConverter();
-
-            //Act:
-            resourceConverter.AddInputResource(1, out int changeCount);
-            resourceConverter.StartConverting();
-
             //Assert:
-            Assert.IsTrue(resourceConverter.IsConverting);
+            Assert.Catch<ArgumentOutOfRangeException>(() =>
+            {
+                var _ = new ResourceConverter(ResourceType.Logs, ResourceType.Planks, 
+                    1, 1, convertingDuration);
+            });
         }
-
+        
         [Test]
-        public void WhenAddToInputZoneResourcesCountMoreThanFreeSlotsThenReturnsItBack()
+        public void WhenInstantiateWithInputOutputSameTypeThenException()
         {
             //Arrange:
-            var inputCapacity = 3;
-            var outputCapacity = 3;
-            var resourceConverter = new ResourceConverter(inputCapacity, outputCapacity);
-            var resourcesAddCount = 10;
-            
-            //Act:
-            resourceConverter.AddInputResource(resourcesAddCount, out int changeCount);
+            var inputType = ResourceType.Logs;
+            var outputType = inputType;
             
             //Assert:
-            Assert.Equals(changeCount, resourcesAddCount - resourceConverter.GetFreeInputResourceCount());
+            Assert.Catch<ArgumentException>(() =>
+            {
+                var _ = new ResourceConverter(inputType, outputType);
+            });
         }
     }
 }
