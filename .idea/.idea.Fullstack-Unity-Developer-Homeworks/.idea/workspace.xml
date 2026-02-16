@@ -4,17 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4cd4cc3e-7b47-49e4-abe0-e988b16956a6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Assets/Game/Scripts/Bullet.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Game/Scripts/Bullet.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Game/Scripts/DamageDealComponent.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Game/Scripts/DamageDealComponent.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Game/Scripts/HealthComponent.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Game/Scripts/HealthComponent.cs.meta" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Game/Scripts/MoveComponent.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Assets/Game/Scripts/MoveComponent.cs.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Fullstack-Unity-Developer-Homeworks/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Fullstack-Unity-Developer-Homeworks/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="4cd4cc3e-7b47-49e4-abe0-e988b16956a6" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -157,7 +147,7 @@
       <option name="presentableId" value="Default" />
       <updated>1771078143788</updated>
       <workItem from="1771078144645" duration="87000" />
-      <workItem from="1771078437413" duration="1582000" />
+      <workItem from="1771078437413" duration="1625000" />
     </task>
     <task id="LOCAL-00004" summary="upd">
       <option name="closed" value="true" />
@@ -167,7 +157,15 @@
       <option name="project" value="LOCAL" />
       <updated>1771078459324</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="folders added / health component added">
+      <option name="closed" value="true" />
+      <created>1771080061747</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1771080061747</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -196,7 +194,8 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="project imported" />
     <MESSAGE value="upd" />
-    <option name="LAST_COMMIT_MESSAGE" value="upd" />
+    <MESSAGE value="folders added / health component added" />
+    <option name="LAST_COMMIT_MESSAGE" value="folders added / health component added" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -518,12 +518,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ba1c9bb6cda40859c2a722f818fdc94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game::Game.UIController
-  _gameOverView: {fileID: 1375492023}
-  _scoreView: {fileID: 895558708}
-  _healthView: {fileID: 1243470931}
-  _enemyManager: {fileID: 562298205}
-  _player: {fileID: 0}
-  gameManager: {fileID: 0}
 --- !u!1 &196756140
 GameObject:
   m_ObjectHideFlags: 0
@@ -1467,7 +1461,6 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
-  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -2125,7 +2118,6 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
-  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
