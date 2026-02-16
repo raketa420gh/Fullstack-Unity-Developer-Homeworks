@@ -7,6 +7,7 @@ namespace Game
     public sealed class HealthComponent
     {
         public event Action<float> OnHealthChanged;
+        public event Action OnHealthZero;
         
         [SerializeField]
         private int _maxHealth;
@@ -21,11 +22,6 @@ namespace Game
                 Debug.LogWarning("Max health can be more than 0.");
         }
 
-        public void Dispose()
-        {
-            
-        }
-
         public void ChangeHealth(int amount)
         {
             int targetHealth = _currentHealth + amount;
@@ -33,7 +29,10 @@ namespace Game
             if (targetHealth > _maxHealth)
                 targetHealth = _maxHealth;
             if (targetHealth < 0)
+            {
                 targetHealth = 0;
+                OnHealthZero?.Invoke();
+            }
             
             _currentHealth = targetHealth;
             
