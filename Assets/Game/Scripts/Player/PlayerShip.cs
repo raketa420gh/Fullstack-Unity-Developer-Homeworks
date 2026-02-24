@@ -24,7 +24,7 @@ namespace Game
         {
             this.OnHealthChanged += health =>
             {
-                _healthView.SetHealth(health, this.config.Health);
+                _healthView.SetHealth(health, this.config.MaxHealth);
                 _cameraShaker.Shake();
             };
             this.OnDead += _gameOverView.Show;
@@ -34,7 +34,7 @@ namespace Game
         {
             this.OnHealthChanged -= health =>
             {
-                _healthView.SetHealth(health, this.config.Health);
+                _healthView.SetHealth(health, this.config.MaxHealth);
                 _cameraShaker.Shake();
             };
             this.OnDead -= _gameOverView.Show;
@@ -42,8 +42,8 @@ namespace Game
 
         public void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-                this.Fire();
+            //if (Input.GetKeyDown(KeyCode.Space))
+                //this.Fire();
 
             float dx = Input.GetAxisRaw("Horizontal");
             float dy = Input.GetAxisRaw("Vertical");
@@ -51,7 +51,7 @@ namespace Game
 
             if (this.currentHealth > 0)
             {
-                _motor.MoveStep(this.moveDirection);
+                //_motor.MoveStep(this.moveDirection);
             }
         }
 

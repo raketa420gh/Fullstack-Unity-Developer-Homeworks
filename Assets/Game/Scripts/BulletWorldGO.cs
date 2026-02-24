@@ -100,7 +100,7 @@ namespace Game
                 // Deal damage to target:
                 if (bullet.damage > 0)
                 {
-                    ship.currentHealth = Mathf.Clamp(ship.currentHealth - bullet.damage, 0, ship.config.Health);
+                    ship.currentHealth = Mathf.Clamp(ship.currentHealth - bullet.damage, 0, ship.config.MaxHealth);
                     ship.NotifyAboutHealthChanged(ship.currentHealth);
  
                     if (ship.currentHealth <= 0)

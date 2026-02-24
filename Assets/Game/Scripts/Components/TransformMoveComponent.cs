@@ -4,20 +4,20 @@ using UnityEngine;
 namespace Game
 {
     [Serializable]
-    public sealed class RigidbodyMoveComponent : IMoveComponent
+    public sealed class TransformMoveComponent : IMoveComponent
     {
         public float MoveSpeed => _speed;
 
         [SerializeField]
-        private Rigidbody2D _rigidbody2d;
+        private Transform _transform;
 
         [SerializeField]
         private float _speed;
 
         public void Move(Vector3 direction)
         {
-            Vector2 newPosition = _rigidbody2d.position + (Vector2)direction * (_speed * Time.fixedDeltaTime);
-            _rigidbody2d.MovePosition(newPosition);
+            Vector3 moveStep = _transform.forward * (_speed * Time.fixedDeltaTime);
+            _transform.position += moveStep;
         }
     }
 }

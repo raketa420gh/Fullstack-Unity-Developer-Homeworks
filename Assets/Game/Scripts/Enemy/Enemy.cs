@@ -27,7 +27,7 @@ namespace Game
 
         private void OnCharacterDead() => _despawner.Despawn(this);
 
-        protected override void FixedUpdate()
+        /*protected override void FixedUpdate()
         {
             base.FixedUpdate();
 
@@ -48,10 +48,10 @@ namespace Game
                 float time = Time.time;
                 if (time - _fireTime >= _fireCooldown)
                 {
-                    this.Fire();
+                    //this.Fire();
                     _fireTime = time;
                 }
             }
-        }
+        }*/
     }
 }
